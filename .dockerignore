@@ -1,0 +1,7 @@
+node_modules
+logs
+test
+build
+.env
+.vscode
+.nyc_output

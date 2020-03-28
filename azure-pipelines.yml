@@ -1,0 +1,31 @@
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  VERSION: '$(build.buildNumber)'
+  DOCKER_REGISTRY: $(dockerId).azurecr.io
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    npm install -g typescript@3.7.5
+    npm install -g mocha@7.0.1
+    npm install -g mocha-junit-reporter
+    npm install
+  displayName: 'Installing dependencies'
+
+- script: tsc -p .
+  displayName: 'Compiling typescript'
+
+- script: NODE_ENV=test DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) mocha --reporter mocha-junit-reporter -t 30000 --exit --recursive ./build/test/api
+  displayName: 'Running mocha test'
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: JUnit
+    testResultsFiles: '**/test-results.xml'
