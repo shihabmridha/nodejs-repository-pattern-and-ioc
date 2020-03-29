@@ -2,7 +2,7 @@ import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UserModel, User, UserDocument, NormalizedUser } from '../../models/user.model';
 import { Repository, Query, Projection } from '../repository';
-import { InvalidId, RepositoryMissingField } from '../../appErrors';
+import { InvalidIdError, RepositoryMissingField } from '../../appErrors';
 
 class UserRepository extends Repository<UserDocument, User> {
 
@@ -20,7 +20,7 @@ class UserRepository extends Repository<UserDocument, User> {
 
   public async updateEmail(id: string, email: string): Promise<void> {
     if (!id || !Types.ObjectId.isValid(id)) {
-      throw new InvalidId();
+      throw new InvalidIdError();
     }
 
     if (!email) {
@@ -33,7 +33,7 @@ class UserRepository extends Repository<UserDocument, User> {
 
   public async updatePassword(id: string, password: string): Promise<void> {
     if (!id || !Types.ObjectId.isValid(id)) {
-      throw new InvalidId();
+      throw new InvalidIdError();
     }
 
     if (!password) {

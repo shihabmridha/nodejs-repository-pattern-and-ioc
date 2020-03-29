@@ -1,5 +1,5 @@
 import { Model, Document, FilterQuery, Types } from 'mongoose';
-import { InvalidId } from '../appErrors';
+import { InvalidIdError } from '../appErrors';
 
 export type Query<T> = FilterQuery<T>;
 
@@ -33,7 +33,7 @@ export class Repository<T extends Document, K> implements IRepository<T, K> {
 
   public async get(id: string, projection: Projection = {}): Promise<K> {
     if (!id || !Types.ObjectId.isValid(id)) {
-      throw new InvalidId();
+      throw new InvalidIdError();
     }
 
     const model = this.getModel();
@@ -103,7 +103,7 @@ export class Repository<T extends Document, K> implements IRepository<T, K> {
 
   public async remove(id: string): Promise<void> {
     if (!id || !Types.ObjectId.isValid(id)) {
-      throw new InvalidId();
+      throw new InvalidIdError();
     }
 
     const model = this.getModel();
