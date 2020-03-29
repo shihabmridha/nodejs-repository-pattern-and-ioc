@@ -37,7 +37,6 @@
     "@types/validator": "12.0.1",
     "supertest": "^4.0.2",
     "faker": "4.1.0",
-    "nyc": "^15.0.0",
     "source-map-support": "0.5.16"
   }
 }

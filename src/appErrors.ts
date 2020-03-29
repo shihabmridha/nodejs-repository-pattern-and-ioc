@@ -70,7 +70,7 @@ export class RepositoryError extends BadRequestError {
   }
 }
 
-export class InvalidId extends RepositoryError {
+export class InvalidIdError extends RepositoryError {
   constructor(...args: any) {
     super(StaticStringKeys.REPOSITORY_ERROR_INVALID_ID, args);
   }

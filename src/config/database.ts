@@ -11,7 +11,7 @@ let DB_NAME = process.env.DB_NAME || 'my-db';
 function getDatabaseUrl() {
   const env = Environment.NODE_ENV;
 
-  if (env === 'test') {
+  if (env === 'test' && !process.env.DB_NAME) {
     DB_NAME += '_test';
   }
 
