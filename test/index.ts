@@ -4,7 +4,7 @@ import log from '../src/log';
 
 import { UserModel } from '../src/models/user.model';
 
-import { getUserRepository } from '../src/services/users/user.repository';
+import { getUserRepository } from '../src/repositories/user.repository';
 
 if (Environment.NODE_ENV !== 'test') {
   log.error('Invalid environment for tests');

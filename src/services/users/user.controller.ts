@@ -6,7 +6,7 @@ import { BadRequestError, MissingFieldError, NotFoundError } from '../../appErro
 import { StaticStringKeys } from '../../statisString';
 import * as Environment from '../../environments';
 import { User, NormalizedUser, UserDocument } from '../../models/user.model';
-import { getUserRepository } from './user.repository';
+import { getUserRepository } from '../../repositories/user.repository';
 
 export enum USER_ROLE {
   ADMIN = 1,
