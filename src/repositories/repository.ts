@@ -1,4 +1,4 @@
-import { Model, Document, FilterQuery, Types } from 'mongoose';
+import { Document, FilterQuery, Model, Types } from 'mongoose';
 import { InvalidIdError } from '../appErrors';
 
 export type Query<T> = FilterQuery<T>;
@@ -38,6 +38,11 @@ export abstract class Repository<T extends Document, K> implements IRepository<T
     this.model = model;
   }
 
+  /**
+   * Receives an ID and fetch data from database by that ID.
+   * @param id Id of the document
+   * @param projection Field to project properties. This is optional.
+   */
   public async get(id: string, projection: Projection = {}): Promise<K> {
     if (!id || !Types.ObjectId.isValid(id)) {
       throw new InvalidIdError();

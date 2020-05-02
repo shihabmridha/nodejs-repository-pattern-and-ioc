@@ -79,17 +79,9 @@ describe('Users', () => {
       assert.equal(res.body.email, user.email);
     });
 
-    it('response 200 with normalized user if successfully get user by id', async () => {
-      const res = await request(app).get(`/users/${user._id}`).expect(200);
-      assert.equal(typeof res.body, 'object');
-      assert.equal(res.body.username, user.username);
-      assert.deepEqual(res.body.password, undefined);
-      assert.deepEqual(res.body._id, undefined);
-    });
-
     it('response 400 if invalid id provided when get user by id', async () => {
       const res = await request(app).get(`/users/invalidId`).expect(400);
-      assert.equal(res.text, 'Invalid user id');
+      assert.equal(res.text, 'Invalid id');
     });
 
     it('response 200 with list of users when get all users', async () => {
@@ -100,14 +92,14 @@ describe('Users', () => {
 
     it('response 200 with N number of users when get all users', async () => {
       await helper.createNUsers(5);
-      const res = await request(app).get(`/users?perPage=3`).expect(200);
+      const res = await request(app).get(`/users?pageSize=3`).expect(200);
       assert.deepEqual(Array.isArray(res.body.users), true);
       assert.deepEqual(res.body.users.length, 3);
     });
 
     it('response 200 with N number of users from 2nd page when get all users', async () => {
       await helper.createNUsers(5);
-      const res = await request(app).get(`/users?perPage=3&page=2`).expect(200);
+      const res = await request(app).get(`/users?pageSize=3&page=2`).expect(200);
       assert.deepEqual(Array.isArray(res.body.users), true);
       assert.deepEqual(res.body.users.length, 3);
     });

@@ -4,7 +4,7 @@ import { UserModel, User, UserDocument, NormalizedUser } from '../models/user.mo
 import { Repository, Query, Projection } from './repository';
 import { InvalidIdError, RepositoryMissingField } from '../appErrors';
 
-class UserRepository extends Repository<UserDocument, User> {
+export class UserRepository extends Repository<UserDocument, User> {
 
   public async getUserByEmail(email: string, project?: Projection): Promise<User> {
     const query: Query<User> = { email };

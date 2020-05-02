@@ -1,4 +1,4 @@
-import { StaticStringKeys } from './statisString';
+import StaticStringKeys from './statisString';
 
 export interface ApplicationError extends Error {
   code: number;
@@ -64,19 +64,13 @@ export class InvalidTokenError extends BadRequestError {
   }
 }
 
-export class RepositoryError extends BadRequestError {
-  constructor(message: string, ...args: any) {
-    super(`Repository error: ${message}`, args);
-  }
-}
-
-export class InvalidIdError extends RepositoryError {
+export class InvalidIdError extends BadRequestError {
   constructor(...args: any) {
     super(StaticStringKeys.REPOSITORY_ERROR_INVALID_ID, args);
   }
 }
 
-export class RepositoryMissingField extends RepositoryError {
+export class RepositoryMissingField extends BadRequestError {
   constructor(...args: any) {
     super('Field missing', args);
   }

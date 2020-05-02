@@ -1,4 +1,4 @@
-export enum StaticStringKeys {
+enum StaticStringKeys {
   INVALID_REQUEST = 'Invalid request',
   INVALID_CREDENTIAL = 'Invalid credential',
   INVALID_ACCESS_TOKEN = 'Invalid access token',
@@ -13,3 +13,5 @@ export enum StaticStringKeys {
 
   REPOSITORY_ERROR_INVALID_ID = 'Invalid id'
 }
+
+export default StaticStringKeys;

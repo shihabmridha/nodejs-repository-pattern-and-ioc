@@ -78,7 +78,7 @@ export function connectToDatabase(app: Application) {
   });
 
   mongoose.connection.once('open', function () {
-    logger.info(`Connected with Database (${dbUrl})`);
+    logger.info(`Connected with Database`);
   });
 
   app.set('dbClient', mongoose);
