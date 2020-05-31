@@ -11,7 +11,7 @@ if (Environment.NODE_ENV !== 'test') {
   process.exit(1);
 }
 
-beforeEach('Clear database before each test', async () => {
+beforeEach(async () => {
   try {
     await clearDatabase();
   } catch (error) {
@@ -19,7 +19,7 @@ beforeEach('Clear database before each test', async () => {
   }
 });
 
-before('Clear database indexes before all tests', async () => {
+beforeAll(async () => {
   try {
     await clearDatabaseIndices();
   } catch (error) {

@@ -5,15 +5,16 @@ This starter kit tries to implement a NodeJS, ExpressJS and MongoDb powered web 
 > This might not be the best implementation you have seen or might not follow all the principals.
 
 # Following modules are used
-- Express.JS
-- Mongoose
+- Express
+- reflect-metadata
+- Inversify
 - Cors
 - Dotenv
 - Bcrypt
 - Winston
 - Compression
 - Validator
-- Mocha with Chai and Faker
+- Jest, Supertest and Faker
 
 > You should easily be able to replace any of the following module with little modification.
 

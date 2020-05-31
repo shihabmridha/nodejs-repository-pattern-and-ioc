@@ -7,8 +7,8 @@
     "start": "node ./build/src/app.js",
     "dev": "nodemon ./build/src/app.js",
     "production": "NODE_ENV=production node ./build/src/app.js",
-    "test": "NODE_ENV=test LOG_LEVEL=debug mocha -t 30000 --exit --recursive ./build/test/api",
-    "coverage": "nyc npm test",
+    "test": "NODE_ENV=test LOG_LEVEL=debug jest --forceExit ./build/test/api",
+    "coverage": "NODE_ENV=test LOG_LEVEL=debug jest --coverage --forceExit ./build/test/api",
     "compile": "tsc -p ."
   },
   "author": "Shihab Mridha",
@@ -31,14 +31,15 @@
     "@types/cors": "2.8.6",
     "@types/dotenv": "8.2.0",
     "@types/express": "4.17.1",
-    "@types/mocha": "7.0.1",
+    "@types/jest": "^25.2.3",
     "@types/mongoose": "5.7.7",
     "@types/node": "10.12.9",
     "@types/source-map-support": "0.5.1",
     "@types/supertest": "2.0.8",
     "@types/validator": "12.0.1",
-    "supertest": "^4.0.2",
     "faker": "4.1.0",
-    "source-map-support": "0.5.16"
+    "jest-junit-reporter": "^1.1.0",
+    "source-map-support": "0.5.16",
+    "supertest": "^4.0.2"
   }
 }
