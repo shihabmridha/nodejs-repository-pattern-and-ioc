@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as Environment from './environments';
-import logger from './log';
+import logger from './config/log.config';
 
 const app = express();
 

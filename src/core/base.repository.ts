@@ -1,7 +1,8 @@
 import { Document, FilterQuery, Model, Types } from 'mongoose';
-import { InvalidIdError } from '../appErrors';
+import BaseDTO from './base.dto';
+import { InvalidIdError } from '../errors/app.errors';
 
-export type Query<T> = FilterQuery<T>;
+export type Query<BaseDTO> = FilterQuery<BaseDTO>;
 
 export interface Projection {
   [key: string]: 1 | 0;
@@ -11,13 +12,13 @@ export interface Sort {
   [key: string]: 1 | -1;
 }
 
-export interface IRepository<T, K> {
-  get(id: string, projection: Projection): Promise<K>;
-  getAll(limit: number, page: number, sort: Sort, projection: Projection): Promise<K[]>;
-  find(filter: Query<T>, limit: number, page: number, sort: Sort, projection: Projection): Promise<K[]>;
+export interface IRepository<T> {
+  get(id: string, projection: Projection): Promise<T | T[]>;
+  getAll(limit: number, page: number, sort: Sort, projection: Projection): Promise<T[]>;
+  find(filter: Query<T>, limit: number, page: number, sort: Sort, projection: Projection): Promise<T[]>;
 
-  create(data: K): Promise<K>;
-  createMany(data: K[]): Promise<K[]>;
+  create(data: BaseDTO): Promise<T>;
+  createMany(data: BaseDTO[]): Promise<T[]>;
 
   remove(id: string): Promise<void>;
   removeMany(ids: string[]): Promise<void>;
@@ -30,7 +31,7 @@ export interface IRepository<T, K> {
  *
  * The model property is the mongoose model in this case. For you, it can be mongodb collection for example.
  */
-export abstract class Repository<T extends Document, K> implements IRepository<T, K> {
+export default abstract class BaseRepository<T extends Document> implements IRepository<T> {
 
   private readonly model: Model<T>;
 
@@ -43,20 +44,20 @@ export abstract class Repository<T extends Document, K> implements IRepository<T
    * @param id Id of the document
    * @param projection Field to project properties. This is optional.
    */
-  public async get(id: string, projection: Projection = {}): Promise<K> {
+  public async get(id: string, projection: Projection = {}): Promise<T> {
     if (!id || !Types.ObjectId.isValid(id)) {
       throw new InvalidIdError();
     }
 
-    const model = this.getModel();
+    const model = this.model;
 
-    const doc: K = await model.findById(id, projection).lean<K>().exec();
+    const doc: T = await model.findById(id, projection).lean<T>().exec();
 
     return doc;
   }
 
-  public async getAll(limit: number = 20, page: number = 1, sort?: Sort, projection: Projection = {}): Promise<K[]> {
-    const model = this.getModel();
+  public async getAll(limit: number = 20, page: number = 1, sort?: Sort, projection: Projection = {}): Promise<T[]> {
+    const model = this.model;
 
     const query = model.find({}, projection);
 
@@ -71,15 +72,14 @@ export abstract class Repository<T extends Document, K> implements IRepository<T
 
     query.limit(limit);
 
-    const docs = await query.lean<K>().exec();
+    const docs = await query.lean<T>().exec();
 
     return docs;
   }
 
-  public async find(filter: Query<T>, limit: number, arg?: number | Projection): Promise<K[]>;
-  public async find(filter: Query<T>, limit: number = 10, page: number = 0, sort?: Sort, projection?: Projection): Promise<K[]> {
-    const model = this.getModel();
-
+  public async find(filter: Query<BaseDTO>, limit: number, arg?: number | Projection): Promise<T[]>;
+  public async find(filter: Query<BaseDTO>, limit: number = 10, page: number = 0, sort?: Sort, projection?: Projection): Promise<T[]> {
+    const model = this.model;
     const query = model.find(filter, projection);
 
     if (sort) {
@@ -93,23 +93,23 @@ export abstract class Repository<T extends Document, K> implements IRepository<T
 
     query.limit(limit);
 
-    const docs = await query.lean<K>().exec();
+    const docs = await query.lean<T>().exec();
 
     return docs;
   }
 
-  public async create(data: K): Promise<K> {
+  public async create(data: BaseDTO): Promise<T> {
     if (!data) {
       throw new Error('Empty object provided');
     }
 
-    const model = this.getModel();
-    const doc = (await model.create(data)).toObject() as K;
+    const model = this.model;
+    const doc = (await model.create(data)).toObject() as T;
 
     return doc;
   }
 
-  public createMany(_data: K[]): Promise<K[]> {
+  public createMany(_data: BaseDTO[]): Promise<T[]> {
     throw new Error("Method not implemented.");
   }
 
@@ -118,12 +118,12 @@ export abstract class Repository<T extends Document, K> implements IRepository<T
       throw new InvalidIdError();
     }
 
-    const model = this.getModel();
+    const model = this.model;
     await model.findByIdAndRemove(id).exec();
   }
 
   public async removeMany(ids?: string[]): Promise<void> {
-    const model = this.getModel();
+    const model = this.model;
 
     if (Array.isArray(ids) && ids.length > 0) {
       await model.deleteMany({ _id: { $in: ids }} as FilterQuery<T>).exec();

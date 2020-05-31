@@ -1,26 +1,27 @@
 import { Document, Schema, model } from 'mongoose';
 
+// User without sensitive fields
 export interface NormalizedUser {
   username: string;
   email: string;
   lastLoggedIn?: Date;
 }
 
+// User with all fields
 export interface User extends NormalizedUser {
   password: string;
   role?: number;
   deletedAt?: Date;
   createdAt?: Date;
-  updatedAt?: Date;
-
-  isValidPassword?(userGivenPassword: string): Promise<boolean>;
 }
-
-export interface UserDocument extends User, Document {}
 
 /**
  * Mongoose specifig code
  */
+
+// User document
+export type UserDocument = User & Document;
+
 const userSchema = new Schema({
   username: { type: String, default: null },
   email: { type: String, required: true, default: null },

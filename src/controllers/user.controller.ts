@@ -1,11 +1,13 @@
 import { Request, Response } from 'express';
 import isEmail from 'validator/lib/isEmail';
 import isLength from 'validator/lib/isLength';
-import { BadRequestError, MissingFieldError } from '../../appErrors';
-import { User, UserDocument } from '../../models/user.model';
-import { getUserRepository, UserRepository } from '../../repositories/user.repository';
-import StaticStringKeys from '../../statisString';
-import Service from '../service';
+import { BadRequestError, MissingFieldError } from '../errors/app.errors';
+import UserRepository, { getUserRepository } from '../repositories/user.repository';
+import { UserCreateDTO } from '../dto/user.dto';
+import StaticStringKeys from '../constants';
+import { Controller, Get, Post } from '../core/decorators';
+import { UserDocument } from '../models/user.model';
+import * as Environment from '../environments';
 
 export enum USER_ROLE {
   ADMIN = 1,
@@ -13,13 +15,45 @@ export enum USER_ROLE {
   VISITOR = 3
 }
 
-export class UserController extends Service<UserDocument, User> {
-  private userRepository: UserRepository;
+@Controller('/users')
+export default class UserController {
+  private repository: UserRepository;
+  private pageSize: number;
 
   constructor(repository: UserRepository) {
-    super(repository);
+    this.repository = repository;
+    this.pageSize = 20;
+  }
 
-    this.userRepository = repository;
+  @Get('/')
+  public async getAll(req: Request, res: Response) {
+    const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : this.pageSize;
+    const pageNumber = req.query.page ? parseInt(req.query.page) : 1;
+
+    let documents: UserDocument[];
+    if (req.query.filter) {
+      documents = await this.repository.find(req.query, pageSize, pageNumber);
+    } else {
+      documents = await this.repository.getAll(pageSize, pageNumber);
+    }
+
+    res.send({
+      users: documents,
+      pageSize,
+      pageNumber,
+      next: documents.length < pageSize ? '' : `${Environment.BASE_URL}${req.path}?page=${pageNumber + 1}`,
+      previous: (pageNumber > 1) ? `${Environment.BASE_URL}${req.path}?page=${pageNumber - 1}` : ''
+    });
+  }
+
+  @Get('/:id')
+  public async get(req: Request, res: Response) {
+    if (!req.params.id) {
+      throw new MissingFieldError('id');
+    }
+
+    const user = await this.repository.get(req.params.id);
+    res.send(user);
   }
 
   /**
@@ -28,6 +62,7 @@ export class UserController extends Service<UserDocument, User> {
    * @requires password A valid password
    * @requires email A valid email
    **/
+  @Post('/')
   public async create(req: Request, res: Response) {
 
     if (!req.body.email) {
@@ -50,10 +85,10 @@ export class UserController extends Service<UserDocument, User> {
       throw new BadRequestError(StaticStringKeys.INVALID_PASSWORD);
     }
 
-    const normalizedEmail = this.userRepository.normalizeEmail(req.body.email);
-    const normalizedUsername = this.userRepository.normalizeUsername(req.body.username);
+    const normalizedEmail = this.repository.normalizeEmail(req.body.email);
+    const normalizedUsername = this.repository.normalizeUsername(req.body.username);
 
-    const users = await this.userRepository.find({ $or: [{ username: normalizedUsername }, { email: normalizedEmail }] }, 2);
+    const users = await this.repository.find({ $or: [{ username: normalizedUsername }, { email: normalizedEmail }] }, 2);
 
     users.forEach((user) => {
       if (user.email === normalizedEmail) {
@@ -65,15 +100,15 @@ export class UserController extends Service<UserDocument, User> {
       }
     });
 
-    const password = await this.userRepository.hashPassword(req.body.password);
+    const password = await this.repository.hashPassword(req.body.password);
 
-    const userData = {
+    const userData: UserCreateDTO = {
       username: normalizedUsername,
       email: normalizedEmail,
       password
     };
 
-    await this.userRepository.create(userData);
+    await this.repository.create(userData);
 
     res.sendStatus(201);
   }
@@ -94,17 +129,17 @@ export class UserController extends Service<UserDocument, User> {
       throw new BadRequestError(StaticStringKeys.INVALID_EMAIL);
     }
 
-    const user = await this.userRepository.get(req.params.id) as UserDocument;
+    const user = await this.repository.get(req.params.id);
 
     if (req.body.email !== user.email) {
-      const normalizedEmail = this.userRepository.normalizeEmail(req.body.email);
-      const isEmailAvailable = await this.userRepository.isEmailAvailable(normalizedEmail);
+      const normalizedEmail = this.repository.normalizeEmail(req.body.email);
+      const isEmailAvailable = await this.repository.isEmailAvailable(normalizedEmail);
 
       if (!isEmailAvailable) {
         throw new BadRequestError(StaticStringKeys.EMAIL_NOT_AVAILABLE);
       }
 
-      await this.userRepository.updateEmail(user._id, normalizedEmail);
+      await this.repository.updateEmail(user._id, normalizedEmail);
     }
 
     res.sendStatus(204);

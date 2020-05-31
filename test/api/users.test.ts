@@ -69,7 +69,7 @@ describe('Users', () => {
   describe('Get user', () => {
     let user: UserDocument;
     beforeEach(async () => {
-      user = await helper.createUser() as UserDocument;
+      user = await helper.createUser();
     });
 
     it('response 200 if successfully get user by id', async () => {

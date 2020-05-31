@@ -19,7 +19,9 @@
     "cors": "2.8.5",
     "dotenv": "8.2.0",
     "express": "4.17.1",
+    "inversify": "^5.0.1",
     "mongoose": "5.9.0",
+    "reflect-metadata": "^0.1.13",
     "validator": "12.2.0",
     "winston": "3.2.1"
   },

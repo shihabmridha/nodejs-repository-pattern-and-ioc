@@ -1,10 +1,7 @@
-import StaticStringKeys from './statisString';
-
-export interface ApplicationError extends Error {
-  code: number;
-}
+import StaticStringKeys from '../constants';
 
 export class ApplicationError extends Error {
+  public code = null;
   constructor(code: number, message: string, ...args: any) {
     super(...args);
     this.code = code;
