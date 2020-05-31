@@ -1,6 +1,6 @@
 import * as faker from 'faker';
 import * as Environment from '../src/environments';
-import log from '../src/log';
+import log from '../src/config/log.config';
 
 import { UserModel } from '../src/models/user.model';
 
@@ -35,10 +35,10 @@ async function clearDatabaseIndices() {
   await UserModel.collection.dropIndexes();
 }
 
-export async function createUser(username?: string, email?: string, password?: string) {
+export async function createUser(username?: string, email?: string, password = 'password') {
   username = username ?? faker.internet.userName();
   email = email ?? faker.internet.email();
-  password = 'password';
+  // password = 'password';
 
   const user = await getUserRepository().create({ username, email, password });
   return user;

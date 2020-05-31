@@ -1,14 +1,14 @@
 import { Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { UserModel, User, UserDocument, NormalizedUser } from '../models/user.model';
-import { Repository, Query, Projection } from './repository';
-import { InvalidIdError, RepositoryMissingField } from '../appErrors';
+import { UserModel, UserDocument, NormalizedUser } from '../models/user.model';
+import BaseRepository, { Query, Projection } from '../core/base.repository';
+import { InvalidIdError, RepositoryMissingField } from '../errors/app.errors';
+import { UserQueryDTO } from '../dto/user.dto';
 
-export class UserRepository extends Repository<UserDocument, User> {
+export default class UserRepository extends BaseRepository<UserDocument> {
 
-  public async getUserByEmail(email: string, project?: Projection): Promise<User> {
-    const query: Query<User> = { email };
-
+  public async getUserByEmail(email: string, project?: Projection): Promise<UserDocument> {
+    const query: Query<UserQueryDTO> = { email };
     const user = await this.find(query, 1, project);
 
     return user[0];
@@ -98,8 +98,8 @@ export class UserRepository extends Repository<UserDocument, User> {
     return true;
   }
 
-  public normalizeUser(user: User): NormalizedUser {
-    const normalizedUser = user as UserDocument;
+  public normalizeUser(user: UserDocument): NormalizedUser {
+    const normalizedUser = user;
 
     normalizedUser.id = normalizedUser._id;
     normalizedUser._id = undefined;

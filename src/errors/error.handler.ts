@@ -1,7 +1,7 @@
 import { Application, Request, Response, NextFunction } from 'express';
-import { NotFoundError, ApplicationError } from './appErrors';
+import { NotFoundError, ApplicationError } from './app.errors';
 import { MongoError } from 'mongodb';
-import log from './log';
+import log from '../config/log.config';
 
 export default function (app: Application) {
 
@@ -11,22 +11,19 @@ export default function (app: Application) {
 
   // If you are lost
   app.use(() => {
-    throw new NotFoundError();
+    throw new NotFoundError('You are lost');
   });
 
   // Request error handler
-  app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
+  app.use((err: ApplicationError, _req: Request, res: Response, next: NextFunction) => {
     if (err instanceof ApplicationError) {
       if (err.message) {
         log.info(err.message);
+        res.status(err.code).send(err.message);
+      } else {
+        res.sendStatus(err.code);
       }
 
-      res.status(err.code).send(err.message);
-      return;
-    }
-
-    if (err && err.status && parseInt(err.status) > 0) {
-      res.sendStatus(err.status);
       return;
     }
 

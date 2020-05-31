@@ -1,13 +1,13 @@
 import { install as installSourceMapSupport } from 'source-map-support';
 installSourceMapSupport();
-
+import 'reflect-metadata';
 import * as express from 'express';
 import * as compress from 'compression';
 import app from './server';
 import * as Environment from './environments';
-import { configCors } from './cors';
-import services from './services';
-import errorHandler from './errorHandler';
+import { configCors } from './config/cors.config';
+import routes from './route.config';
+import errorHandler from './errors/error.handler';
 
 app.disable('x-powered-by'); // Hide information
 app.use(compress()); // Compress
@@ -26,7 +26,7 @@ configCors(app);
 /**
  * Configure mongoose
  **/
-import { connectToDatabase } from './config/database';
+import { connectToDatabase } from './config/database.config';
 connectToDatabase(app);
 
 /**
@@ -41,9 +41,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/', express.static('public'));
 
 /**
- * Configure services
+ * Configure routes
  */
-services(app);
+routes(app);
 
 /**
  * Configure error handler

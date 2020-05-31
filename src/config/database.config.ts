@@ -1,7 +1,7 @@
 import { Application } from 'express';
 import * as mongoose from 'mongoose';
 import * as Environment from '../environments';
-import logger from '../log';
+import logger from './log.config';
 
 const DB_PASSWORD = process.env.DB_PWD || '';
 const DB_USER = process.env.DB_USER || '';
