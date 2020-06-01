@@ -1,4 +1,4 @@
-import RouteDefinition from './interfaces';
+import { RouteDefinition } from './types';
 import { HTTP_TYPE } from './constants';
 
 export const Controller = (prefix: string = ''): ClassDecorator => {

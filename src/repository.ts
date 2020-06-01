@@ -1,9 +1,10 @@
-import { Collection, FilterQuery } from 'mongodb';
-import db from '../config/database.config';
-import BaseDTO from './base.dto';
-import { getValidObjectId } from '../helpers';
+import { Collection, FilterQuery, ObjectID } from 'mongodb';
+import db from './config/database.config';
+import BaseDTO from './dto/base.dto';
+import { getValidObjectId } from './helpers';
 
 export type Query<BaseDTO> = FilterQuery<BaseDTO>;
+
 export interface Projection {
   [key: string]: 1 | 0;
 }
@@ -13,15 +14,15 @@ export interface Sort {
 }
 
 export interface IRepository<T> {
-  get(id: string, projection: Projection): Promise<T | T[]>;
+  getById(id: ObjectID, projection: Projection): Promise<T | T[]>;
   getAll(limit: number, page: number, sort: Sort, projection: Projection): Promise<T[]>;
   find(filter: Query<T>, limit: number, page: number, sort: Sort, projection: Projection): Promise<T[]>;
 
   create(data: BaseDTO): Promise<T>;
   createMany(data: BaseDTO[]): Promise<T[]>;
 
-  remove(id: string): Promise<void>;
-  removeMany(ids: string[]): Promise<void>;
+  remove(id: ObjectID): Promise<void>;
+  removeMany(ids: ObjectID[]): Promise<void>;
 }
 
 /**
@@ -31,7 +32,7 @@ export interface IRepository<T> {
  *
  * The collection property is the mongoose collection in this case. For you, it can be mongodb collection for example.
  */
-export default abstract class BaseRepository<T> implements IRepository<T> {
+export default class Repository<T> implements IRepository<T> {
 
   protected readonly collection: Collection;
 
@@ -44,7 +45,7 @@ export default abstract class BaseRepository<T> implements IRepository<T> {
    * @param id Id of the document
    * @param projection Field to project properties. This is optional.
    */
-  public async get(id: string, projection: Projection = {}): Promise<T> {
+  public async getById(id: ObjectID, projection: Projection = {}): Promise<T> {
     const objectId = getValidObjectId(id);
 
     const collection = this.collection;
@@ -111,7 +112,7 @@ export default abstract class BaseRepository<T> implements IRepository<T> {
     throw new Error("Method not implemented.");
   }
 
-  public async remove(id: string): Promise<void> {
+  public async remove(id: ObjectID): Promise<void> {
     const objectId = getValidObjectId(id);
 
     const collection = this.collection;
@@ -123,7 +124,7 @@ export default abstract class BaseRepository<T> implements IRepository<T> {
    * If noting is given then remove all items
    * @param ids Array of ids to delete.
    */
-  public async removeMany(ids?: string[]): Promise<void> {
+  public async removeMany(ids?: ObjectID[]): Promise<void> {
     const collection = this.collection;
 
     if (Array.isArray(ids) && ids.length > 0) {
@@ -132,5 +133,16 @@ export default abstract class BaseRepository<T> implements IRepository<T> {
     }
 
     await collection.deleteMany({});
+  }
+
+  public async updateById(id: ObjectID, data: Partial<T>) {
+    const objectId = getValidObjectId(id);
+
+    const collection = this.collection;
+    await collection.update({ _id: objectId }, data);
+  }
+
+  public getCollection(): Collection {
+    return this.collection;
   }
 }

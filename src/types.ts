@@ -1,11 +1,24 @@
 import { Request } from 'express';
-import { User } from './models/user.model';
+import { UserDocument } from './models/user.model';
+import { HTTP_TYPE } from './constants';
 
 /**
  * Introduce custom types here.
  */
 export interface AppRequest extends Request {
-  user: User;
+  user: UserDocument;
+}
+
+/**
+ * Route informations are stored in this format as metadata using decorator.
+ */
+export interface RouteDefinition {
+  // Path to our route
+  path: string;
+  // HTTP Request method (get, post, ...)
+  requestMethod: HTTP_TYPE;
+  // Method name within our class responsible for this route
+  methodName: string;
 }
 
 /**

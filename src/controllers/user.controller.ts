@@ -2,12 +2,12 @@ import { Request, Response } from 'express';
 import isEmail from 'validator/lib/isEmail';
 import isLength from 'validator/lib/isLength';
 import { BadRequestError, MissingFieldError } from '../errors/app.errors';
-import UserRepository, { getUserRepository } from '../repositories/user.repository';
-import { UserCreateDTO } from '../dto/user.dto';
 import StaticStringKeys from '../constants';
-import { Controller, Get, Post } from '../core/decorators';
-import { User } from '../models/user.model';
-import * as Environment from '../environments';
+import { Controller, Get, Post } from '../decorators';
+import { UserGetDTO, UserCreateDTO, UserUpdatePasswordDTO, UserUpdateEmailDTO } from '../dto/user.dto';
+import User, { UserDocument } from '../models/user.model';
+import { getValidObjectId } from '../helpers';
+import Repository from '../repository';
 
 export enum USER_ROLE {
   ADMIN = 1,
@@ -17,12 +17,14 @@ export enum USER_ROLE {
 
 @Controller('/users')
 export default class UserController {
-  private repository: UserRepository;
+  private repository: Repository<UserDocument>;
   private pageSize: number;
+  private userBusinessModel: User;
 
-  constructor(repository: UserRepository) {
+  constructor(repository: Repository<UserDocument>) {
     this.repository = repository;
     this.pageSize = 20;
+    this.userBusinessModel = new User(repository);
   }
 
   @Get('/')
@@ -30,20 +32,15 @@ export default class UserController {
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : this.pageSize;
     const pageNumber = req.query.page ? parseInt(req.query.page) : 1;
 
-    let documents: User[];
-    if (req.query.filter) {
-      documents = await this.repository.find(req.query, pageSize, pageNumber);
-    } else {
-      documents = await this.repository.getAll(pageSize, pageNumber);
-    }
-
-    res.send({
-      users: documents,
-      pageSize,
+    const dto: UserGetDTO = {
       pageNumber,
-      next: documents.length < pageSize ? '' : `${Environment.BASE_URL}${req.path}?page=${pageNumber + 1}`,
-      previous: (pageNumber > 1) ? `${Environment.BASE_URL}${req.path}?page=${pageNumber - 1}` : ''
-    });
+      pageSize,
+      filter: req.query.filter,
+      path: req.path
+    };
+
+    const response = await this.userBusinessModel.getAllUsers(dto);
+    res.send(response);
   }
 
   @Get('/:id')
@@ -52,7 +49,7 @@ export default class UserController {
       throw new MissingFieldError('id');
     }
 
-    const user = await this.repository.get(req.params.id);
+    const user = await this.repository.getById(getValidObjectId(req.params.id));
     res.send(user);
   }
 
@@ -85,30 +82,13 @@ export default class UserController {
       throw new BadRequestError(StaticStringKeys.INVALID_PASSWORD);
     }
 
-    const normalizedEmail = this.repository.normalizeEmail(req.body.email);
-    const normalizedUsername = this.repository.normalizeUsername(req.body.username);
-
-    const users = await this.repository.find({ $or: [{ username: normalizedUsername }, { email: normalizedEmail }] }, 2);
-
-    users.forEach((user) => {
-      if (user.email === normalizedEmail) {
-        throw new BadRequestError(StaticStringKeys.EMAIL_NOT_AVAILABLE);
-      }
-
-      if (user.username === normalizedUsername) {
-        throw new BadRequestError(StaticStringKeys.USERNAME_NOT_AVAILABLE);
-      }
-    });
-
-    const password = await this.repository.hashPassword(req.body.password);
-
-    const userData: UserCreateDTO = {
-      username: normalizedUsername,
-      email: normalizedEmail,
-      password
+    const dto: UserCreateDTO = {
+      email: req.body.email,
+      username: req.body.username,
+      password: req.body.password
     };
 
-    await this.repository.create(userData);
+    await this.userBusinessModel.createUser(dto);
 
     res.sendStatus(201);
   }
@@ -129,18 +109,12 @@ export default class UserController {
       throw new BadRequestError(StaticStringKeys.INVALID_EMAIL);
     }
 
-    const user = await this.repository.get(req.params.id);
+    const dto: UserUpdateEmailDTO = {
+      id: getValidObjectId(req.params.id),
+      newEmail: req.body.email,
+    };
 
-    if (req.body.email !== user.email) {
-      const normalizedEmail = this.repository.normalizeEmail(req.body.email);
-      const isEmailAvailable = await this.repository.isEmailAvailable(normalizedEmail);
-
-      if (!isEmailAvailable) {
-        throw new BadRequestError(StaticStringKeys.EMAIL_NOT_AVAILABLE);
-      }
-
-      await this.repository.updateEmail(user._id, normalizedEmail);
-    }
+    await this.userBusinessModel.updateEmail(dto);
 
     res.sendStatus(204);
   }
@@ -157,11 +131,12 @@ export default class UserController {
       throw new MissingFieldError('password');
     }
 
-    const repository = getUserRepository();
+    const dto: UserUpdatePasswordDTO = {
+      id: getValidObjectId(req.params.id),
+      password: req.body.password
+    };
 
-    const newPassword = await repository.hashPassword(req.body.password);
-
-    await repository.updatePassword(req.params.id, newPassword);
+    await this.userBusinessModel.updatePassword(dto);
 
     res.sendStatus(204);
   }

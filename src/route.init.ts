@@ -1,15 +1,16 @@
 import { Application } from 'express';
-import RouteDefinition from './core/interfaces';
+import { RouteDefinition } from './types';
 import { asyncWrap } from './helpers';
 import UserController from './controllers/user.controller';
-import { getUserRepository } from './repositories/user.repository';
+import Repository from './repository';
+import { UserDocument } from './models/user.model';
 
 /**
  * Configure all the services with the express application
  */
 export default function (app: Application) {
   // Iterate over all our controllers and register our routes
-  const UserControllerInstance = new UserController(getUserRepository());
+  const UserControllerInstance = new UserController(new Repository<UserDocument>('users'));
   configureRoutes(app, UserControllerInstance, UserController);
 }
 

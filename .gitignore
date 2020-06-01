@@ -63,8 +63,8 @@ typings/
 # Compiled TypeScript
 build
 
-#apidoc
-apidoc
+#test report
+test-report.xml
 
 #code
 *.code-workspace

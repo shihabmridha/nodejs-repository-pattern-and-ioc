@@ -2,12 +2,12 @@ import * as assert from 'assert';
 import * as request from 'supertest';
 import app from '../../src/app';
 import * as helper from '../index';
-import { User } from '../../src/models/user.model';
+import { UserDocument } from '../../src/models/user.model';
 
 describe('Users', () => {
   describe('Create user', () => {
 
-    async function createUserRequest({username, password, email}, error?: string, code?: number) {
+    async function createUserRequest({ username, password, email }, error?: string, code?: number) {
       const body = { username, password, email };
       const res = await request(app).post('/users').send(body).expect(code);
       assert.deepEqual(res.text, error);
@@ -67,7 +67,7 @@ describe('Users', () => {
   });
 
   describe('Get user', () => {
-    let user: User;
+    let user: UserDocument;
     beforeEach(async () => {
       user = await helper.createUser();
     });
@@ -106,7 +106,7 @@ describe('Users', () => {
 
   });
 
-  describe('Update user', () => {});
+  describe('Update user', () => { });
 
-  describe('Delete user', () => {});
+  describe('Delete user', () => { });
 });
