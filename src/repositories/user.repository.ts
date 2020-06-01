@@ -1,21 +1,22 @@
-import { Types } from 'mongoose';
+import { ObjectID, Collection } from 'mongodb';
 import * as bcrypt from 'bcrypt';
-import { UserModel, UserDocument, NormalizedUser } from '../models/user.model';
+import { User, NormalizedUser } from '../models/user.model';
 import BaseRepository, { Query, Projection } from '../core/base.repository';
 import { InvalidIdError, RepositoryMissingField } from '../errors/app.errors';
 import { UserQueryDTO } from '../dto/user.dto';
+import { getValidObjectId } from '../helpers';
 
-export default class UserRepository extends BaseRepository<UserDocument> {
+export default class UserRepository extends BaseRepository<User> {
 
-  public async getUserByEmail(email: string, project?: Projection): Promise<UserDocument> {
+  public async getUserByEmail(email: string, project?: Projection): Promise<User> {
     const query: Query<UserQueryDTO> = { email };
     const user = await this.find(query, 1, project);
 
     return user[0];
   }
 
-  public async updateEmail(id: string, email: string): Promise<void> {
-    if (!id || !Types.ObjectId.isValid(id)) {
+  public async updateEmail(id: ObjectID, email: string): Promise<void> {
+    if (!id || !ObjectID.isValid(id)) {
       throw new InvalidIdError();
     }
 
@@ -23,12 +24,12 @@ export default class UserRepository extends BaseRepository<UserDocument> {
       throw new RepositoryMissingField();
     }
 
-    const model = this.getModel();
-    await model.findByIdAndUpdate(id, { email }).exec();
+    const collection = this.collection;
+    await collection.findOneAndUpdate({ _id: getValidObjectId(id) }, { email });
   }
 
   public async updatePassword(id: string, password: string): Promise<void> {
-    if (!id || !Types.ObjectId.isValid(id)) {
+    if (!id || !ObjectID.isValid(id)) {
       throw new InvalidIdError();
     }
 
@@ -36,8 +37,8 @@ export default class UserRepository extends BaseRepository<UserDocument> {
       throw new RepositoryMissingField();
     }
 
-    const model = this.getModel();
-    await model.findByIdAndUpdate(id, { password }).exec();
+    const model = this.collection;
+    await model.findOneAndUpdate({ _id: getValidObjectId(id) }, { password });
   }
 
   public async hashPassword(password: string): Promise<string> {
@@ -98,17 +99,19 @@ export default class UserRepository extends BaseRepository<UserDocument> {
     return true;
   }
 
-  public normalizeUser(user: UserDocument): NormalizedUser {
+  public normalizeUser(user: User): NormalizedUser {
     const normalizedUser = user;
 
     normalizedUser.id = normalizedUser._id;
-    normalizedUser._id = undefined;
-    normalizedUser.__v = undefined;
     normalizedUser.password = undefined;
     normalizedUser.role = undefined;
     normalizedUser.deletedAt = undefined;
 
     return normalizedUser;
+  }
+
+  public getUserCollection(): Collection {
+    return this.collection;
   }
 
 }
@@ -120,7 +123,7 @@ export default class UserRepository extends BaseRepository<UserDocument> {
 let repository: UserRepository = null;
 export function getUserRepository() {
   if (!repository) {
-    repository = new UserRepository(UserModel);
+    repository = new UserRepository('users');
   }
 
   return repository;

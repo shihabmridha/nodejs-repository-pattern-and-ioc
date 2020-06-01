@@ -1,85 +1,99 @@
-import { Application } from 'express';
-import * as mongoose from 'mongoose';
+import { MongoClient, Db, Collection } from 'mongodb';
 import * as Environment from '../environments';
 import logger from './log.config';
 
-const DB_PASSWORD = process.env.DB_PWD || '';
-const DB_USER = process.env.DB_USER || '';
-const DB_HOST = process.env.DB_HOST || 'localhost:27017';
-let DB_NAME = process.env.DB_NAME || 'my-db';
+class Database {
+  private password: string;
+  private user: string;
+  private host: string;
+  private dbName: string;
 
-function getDatabaseUrl() {
-  const env = Environment.NODE_ENV;
+  private dbClient: MongoClient;
+  private databaseInstance: Db;
 
-  if (env === 'test' && !process.env.DB_NAME) {
-    DB_NAME += '_test';
+  constructor() {
+    this.password = process.env.DB_PWD || '';
+    this.user = process.env.DB_USER || '';
+    this.host = process.env.DB_HOST || 'localhost:27017';
+    this.dbName = process.env.DB_NAME || 'my-db';
   }
 
-  if (env !== 'localhost' && DB_USER && DB_PASSWORD) {
-    return `mongodb://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}`;
+  public async connect(): Promise<void> {
+    if (this.dbClient) {
+      logger.debug('Connection already exists');
+      return;
+    }
+
+    const TWO_MINUTES_IN_MS = 2 * 60 * 1000;
+    const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
+
+    const connectionString = this.getConnectionString();
+
+    const client = new MongoClient(connectionString, {
+      poolSize: 50,
+      connectTimeoutMS: TWO_MINUTES_IN_MS,
+      socketTimeoutMS: ONE_DAY_IN_MS,
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+
+    this.dbClient = await client.connect();
+
+    logger.debug(`Database connection string: ${connectionString}`);
+    logger.info(`Connected with database host`);
+
+    this.databaseInstance = this.dbClient.db(this.dbName);
   }
 
-  return `mongodb://${DB_HOST}/${DB_NAME}`;
-}
-
-function getDatabaseOptions(): mongoose.ConnectionOptions {
-  /**
-   * For details about server configuration parameters, see
-   * http://mongoosejs.com/docs/connections.html
-   * http://mongodb.github.io/node-mongodb-native/2.2/api/MongoClient.html
-   */
-
-  const TWO_MINUTES_IN_MS = 2 * 60 * 1000;
-  const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
-
-  let autoIndex = false;
-
-  if (Environment.NODE_ENV === 'locahost') {
-    autoIndex = true;
+  public async disconnect() {
+    if (this.dbClient.isConnected()) {
+      logger.info(`Disconned from ${this.host}/${this.dbName}`);
+      await this.dbClient.close();
+    }
   }
 
-  return {
-    poolSize: 50,
-    connectTimeoutMS: TWO_MINUTES_IN_MS,
-    socketTimeoutMS: ONE_DAY_IN_MS,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-    autoIndex
-  };
+  public getCollection(name: string): Collection {
+    if (!this.databaseInstance) {
+      throw new Error('Database not initialized');
+    }
+
+    return this.databaseInstance.collection(name);
+  }
+
+  private getConnectionString() {
+    const env = Environment.NODE_ENV;
+    if (env === 'test' && !process.env.DB_NAME) {
+      this.dbName += '_test';
+    }
+
+    if (env !== 'localhost' && this.user && this.password) {
+      return `mongodb://${this.user}:${this.password}@${this.host}/${this.dbName}`;
+    }
+
+    return `mongodb://${this.host}/${this.dbName}`;
+  }
+
+  public getDbHost() {
+    return this.host;
+  }
+
+  public getDbPassword() {
+    return this.password;
+  }
+
+  public getDbUser() {
+    return this.user;
+  }
+
+  public getDbName() {
+    return this.dbName;
+  }
+
+  public isDbConnected() {
+    return this.dbClient && this.dbClient.isConnected();
+  }
 }
 
-export function connectToDatabase(app: Application) {
-  const dbUrl = getDatabaseUrl();
-  const dbOptions = getDatabaseOptions();
+const db = new Database();
 
-  logger.debug(`Database user: ${DB_USER}`);
-  logger.debug(`Database password: ${DB_PASSWORD}`);
-  logger.debug(`Database name: ${DB_NAME}`);
-
-  logger.info(`App database URL: ${dbUrl}`);
-
-  mongoose.connect(dbUrl, dbOptions).catch();
-
-  mongoose.connection.on('error', (err) => {
-    logger.error('mongoose.js error ', err.message);
-  });
-
-  mongoose.connection.on('reconnected', () => {
-    logger.warn(`mongoose.js reconnected`);
-  });
-
-  mongoose.connection.on('disconnected', (err) => {
-    logger.warn(`mongoose.js disconnect`, err);
-  });
-
-  mongoose.connection.on('timeout', (err) => {
-    logger.error(`mongoose.js request timeout`, err);
-  });
-
-  mongoose.connection.once('open', function () {
-    logger.info(`Connected with Database`);
-  });
-
-  app.set('dbClient', mongoose);
-}
+export default db;

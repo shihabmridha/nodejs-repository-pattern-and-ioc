@@ -2,8 +2,6 @@ import * as faker from 'faker';
 import * as Environment from '../src/environments';
 import log from '../src/config/log.config';
 
-import { UserModel } from '../src/models/user.model';
-
 import { getUserRepository } from '../src/repositories/user.repository';
 
 if (Environment.NODE_ENV !== 'test') {
@@ -21,6 +19,9 @@ beforeEach(async () => {
 
 beforeAll(async () => {
   try {
+    // Wait for Jest to run the app and connect to database
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     await clearDatabaseIndices();
   } catch (error) {
     log.info(error.message);
@@ -32,7 +33,7 @@ async function clearDatabase() {
 }
 
 async function clearDatabaseIndices() {
-  await UserModel.collection.dropIndexes();
+  await getUserRepository().getUserCollection().dropIndexes();
 }
 
 export async function createUser(username?: string, email?: string, password = 'password') {

@@ -6,7 +6,7 @@ import UserRepository, { getUserRepository } from '../repositories/user.reposito
 import { UserCreateDTO } from '../dto/user.dto';
 import StaticStringKeys from '../constants';
 import { Controller, Get, Post } from '../core/decorators';
-import { UserDocument } from '../models/user.model';
+import { User } from '../models/user.model';
 import * as Environment from '../environments';
 
 export enum USER_ROLE {
@@ -30,7 +30,7 @@ export default class UserController {
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : this.pageSize;
     const pageNumber = req.query.page ? parseInt(req.query.page) : 1;
 
-    let documents: UserDocument[];
+    let documents: User[];
     if (req.query.filter) {
       documents = await this.repository.find(req.query, pageSize, pageNumber);
     } else {

@@ -1,13 +1,20 @@
-import * as winston from 'winston';
+import { createLogger, format, transports } from 'winston';
+import * as Environment from '../environments';
 
+const { combine, label, timestamp, printf } = format;
 // Make sure this exists
 const LOG_FILE_PATH = 'logs/error.log';
 
-const file = new winston.transports.File({ filename: LOG_FILE_PATH, level: 'error' });
-const console = new winston.transports.Console({ format: winston.format.simple() });
+const file = new transports.File({ filename: LOG_FILE_PATH, level: 'error' });
+const console = new transports.Console();
 
-const logger = winston.createLogger({
+const logFormat = printf(({ level, message, label, timestamp }) => {
+  return `${timestamp} [${label}] ${level}: ${message}`;
+});
+
+const logger = createLogger({
   level: process.env.LOG_LEVEL || 'info',
+  format: combine(label({ label: Environment.NODE_ENV }), timestamp(), logFormat),
   transports: [file]
 });
 

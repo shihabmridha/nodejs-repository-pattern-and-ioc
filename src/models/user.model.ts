@@ -1,7 +1,8 @@
-import { Document, Schema, model } from 'mongoose';
+import { ObjectID } from 'mongodb';
 
 // User without sensitive fields
 export interface NormalizedUser {
+  id: ObjectID;
   username: string;
   email: string;
   lastLoggedIn?: Date;
@@ -9,35 +10,16 @@ export interface NormalizedUser {
 
 // User with all fields
 export interface User extends NormalizedUser {
+  _id: ObjectID;
   password: string;
   role?: number;
   deletedAt?: Date;
   createdAt?: Date;
 }
 
-/**
- * Mongoose specifig code
- */
+// export class User {
 
-// User document
-export type UserDocument = User & Document;
+//   getUser() {
 
-const userSchema = new Schema({
-  username: { type: String, default: null },
-  email: { type: String, required: true, default: null },
-  password: { type: String, default: null },
-  role: { type: Number, default: 3 },
-  deletedAt: { type: Date, default: null },
-  lastLoggedIn: { type: Date, default: null },
-},
-  {
-    timestamps: true
-  });
-
-/**
-* Index
-*/
-userSchema.index({ username: 1 });
-userSchema.index({ email: 1 });
-
-export const UserModel = model<UserDocument>('User', userSchema);
+//   }
+// }

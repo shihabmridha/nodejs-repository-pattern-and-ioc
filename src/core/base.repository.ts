@@ -1,9 +1,9 @@
-import { Document, FilterQuery, Model, Types } from 'mongoose';
+import { Collection, FilterQuery } from 'mongodb';
+import db from '../config/database.config';
 import BaseDTO from './base.dto';
-import { InvalidIdError } from '../errors/app.errors';
+import { getValidObjectId } from '../helpers';
 
 export type Query<BaseDTO> = FilterQuery<BaseDTO>;
-
 export interface Projection {
   [key: string]: 1 | 0;
 }
@@ -29,14 +29,14 @@ export interface IRepository<T> {
  * extended. This class is writen to support mongoose properly which means it will look different
  * if you use mongodb driver directly or use any other orm or database driver.
  *
- * The model property is the mongoose model in this case. For you, it can be mongodb collection for example.
+ * The collection property is the mongoose collection in this case. For you, it can be mongodb collection for example.
  */
-export default abstract class BaseRepository<T extends Document> implements IRepository<T> {
+export default abstract class BaseRepository<T> implements IRepository<T> {
 
-  private readonly model: Model<T>;
+  protected readonly collection: Collection;
 
-  constructor(model: Model<T>) {
-    this.model = model;
+  constructor(collection: string) {
+    this.collection = db.getCollection(collection);
   }
 
   /**
@@ -45,21 +45,19 @@ export default abstract class BaseRepository<T extends Document> implements IRep
    * @param projection Field to project properties. This is optional.
    */
   public async get(id: string, projection: Projection = {}): Promise<T> {
-    if (!id || !Types.ObjectId.isValid(id)) {
-      throw new InvalidIdError();
-    }
+    const objectId = getValidObjectId(id);
 
-    const model = this.model;
+    const collection = this.collection;
 
-    const doc: T = await model.findById(id, projection).lean<T>().exec();
+    const doc: T = await collection.findOne<T>({ _id: objectId }, projection);
 
     return doc;
   }
 
   public async getAll(limit: number = 20, page: number = 1, sort?: Sort, projection: Projection = {}): Promise<T[]> {
-    const model = this.model;
+    const collection = this.collection;
 
-    const query = model.find({}, projection);
+    const query = collection.find<T>({}, projection);
 
     if (sort) {
       query.sort(sort);
@@ -72,15 +70,15 @@ export default abstract class BaseRepository<T extends Document> implements IRep
 
     query.limit(limit);
 
-    const docs = await query.lean<T>().exec();
+    const docs = await query.toArray();
 
     return docs;
   }
 
   public async find(filter: Query<BaseDTO>, limit: number, arg?: number | Projection): Promise<T[]>;
   public async find(filter: Query<BaseDTO>, limit: number = 10, page: number = 0, sort?: Sort, projection?: Projection): Promise<T[]> {
-    const model = this.model;
-    const query = model.find(filter, projection);
+    const collection = this.collection;
+    const query = collection.find<T>(filter, projection);
 
     if (sort) {
       query.sort(sort);
@@ -93,7 +91,7 @@ export default abstract class BaseRepository<T extends Document> implements IRep
 
     query.limit(limit);
 
-    const docs = await query.lean<T>().exec();
+    const docs = await query.toArray();
 
     return docs;
   }
@@ -103,8 +101,8 @@ export default abstract class BaseRepository<T extends Document> implements IRep
       throw new Error('Empty object provided');
     }
 
-    const model = this.model;
-    const doc = (await model.create(data)).toObject() as T;
+    const collection = this.collection;
+    const doc = (await collection.insertOne(data)).ops[0] as T;
 
     return doc;
   }
@@ -114,25 +112,25 @@ export default abstract class BaseRepository<T extends Document> implements IRep
   }
 
   public async remove(id: string): Promise<void> {
-    if (!id || !Types.ObjectId.isValid(id)) {
-      throw new InvalidIdError();
-    }
+    const objectId = getValidObjectId(id);
 
-    const model = this.model;
-    await model.findByIdAndRemove(id).exec();
+    const collection = this.collection;
+    await collection.findOneAndDelete({ _id: objectId });
   }
 
+  /**
+   * If array of id is provided then only remove those items.
+   * If noting is given then remove all items
+   * @param ids Array of ids to delete.
+   */
   public async removeMany(ids?: string[]): Promise<void> {
-    const model = this.model;
+    const collection = this.collection;
 
     if (Array.isArray(ids) && ids.length > 0) {
-      await model.deleteMany({ _id: { $in: ids }} as FilterQuery<T>).exec();
+      const objectIds = ids.map((id) => getValidObjectId(id));
+      await collection.deleteMany({ _id: { $in: objectIds } });
     }
-    await model.deleteMany({}).exec();
-  }
 
-  protected getModel(): Model<T> {
-    return this.model;
+    await collection.deleteMany({});
   }
-
 }
