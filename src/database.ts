@@ -1,6 +1,11 @@
 import { MongoClient, Db, Collection } from 'mongodb';
-import * as Environment from '../environments';
-import logger from './log.config';
+import logger from './logger';
+
+/**
+ * All the methods and properties mentioned in the following class is
+ * specific to MongoDB. You should make necessary changes to support
+ * the database you want to use.
+ */
 
 class Database {
   private password: string;
@@ -52,6 +57,12 @@ class Database {
     }
   }
 
+  /**
+   * For MongoDB there is no table. It is called collection
+   * If you are using SQL database then this should be something like getTable()
+   *
+   * @param name MongoDB Collection name
+   */
   public getCollection(name: string): Collection {
     if (!this.databaseInstance) {
       throw new Error('Database not initialized');
@@ -60,8 +71,12 @@ class Database {
     return this.databaseInstance.collection(name);
   }
 
+  /**
+   * Build database connection string.
+   * Customize as needed for your database.
+   */
   private getConnectionString() {
-    const env = Environment.NODE_ENV;
+    const env = process.env.NODE_ENV;
     if (env === 'test' && !process.env.DB_NAME) {
       this.dbName += '_test';
     }

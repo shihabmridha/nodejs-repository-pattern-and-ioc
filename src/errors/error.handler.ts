@@ -1,7 +1,7 @@
 import { Application, Request, Response, NextFunction } from 'express';
 import { NotFoundError, ApplicationError } from './app.errors';
 import { MongoError } from 'mongodb';
-import log from '../config/log.config';
+import log from '../logger';
 
 export default function (app: Application) {
 

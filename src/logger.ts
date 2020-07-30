@@ -1,5 +1,4 @@
 import { createLogger, format, transports } from 'winston';
-import * as Environment from '../environments';
 
 const { combine, label, timestamp, printf } = format;
 // Make sure this exists
@@ -14,7 +13,7 @@ const logFormat = printf(({ level, message, label, timestamp }) => {
 
 const logger = createLogger({
   level: process.env.LOG_LEVEL || 'info',
-  format: combine(label({ label: Environment.NODE_ENV }), timestamp(), logFormat),
+  format: combine(label({ label: process.env.NODE_ENV }), timestamp(), logFormat),
   transports: [file]
 });
 

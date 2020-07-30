@@ -1,11 +1,3 @@
-export enum HTTP_TYPE {
-  GET = 'get',
-  POST = 'post',
-  PUT = 'put',
-  DELETE = 'delete',
-  OPTIONS = 'options'
-}
-
 enum StaticStringKeys {
   INVALID_REQUEST = 'Invalid request',
   INVALID_CREDENTIAL = 'Invalid credential',

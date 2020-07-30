@@ -1,8 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
 import { ObjectID } from 'mongodb';
 import * as fs from 'fs';
 import * as utils from 'util';
-import { InvalidIdError } from './errors/app.errors';
+import { InvalidIdError } from '../errors/app.errors';
 
 // Promisify some utility functions
 export const exists = utils.promisify(fs.exists);
@@ -18,15 +17,4 @@ export function getValidObjectId(id: string | ObjectID) {
   }
 
   return id;
-}
-
-// Wraps async functions, catching all errors and sending them forward to express error handler
-export function asyncWrap(controller: CallableFunction) {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await controller(req, res, next);
-    } catch (e) {
-      next(e);
-    }
-  };
 }

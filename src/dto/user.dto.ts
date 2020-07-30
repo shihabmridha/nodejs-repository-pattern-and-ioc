@@ -1,13 +1,12 @@
 import BaseDTO from './base.dto';
-import { Query } from '../repository';
-import { ObjectID } from 'mongodb';
+import { ObjectID, FilterQuery } from 'mongodb';
 
 export type UserQueryDTO = BaseDTO;
 
 export interface UserGetDTO extends BaseDTO {
   pageSize: number;
   pageNumber: number;
-  filter: Query<UserQueryDTO>;
+  filter: FilterQuery<UserQueryDTO>;
   path: string;
 }
 

@@ -4,19 +4,18 @@ import 'reflect-metadata';
 import * as express from 'express';
 import * as compress from 'compression';
 import app from './server';
-import * as Environment from './environments';
-import { configCors } from './config/cors.config';
-import routes from './route.init';
+import * as cors from 'cors';
+import routes from './routes';
 import errorHandler from './errors/error.handler';
-import logger from './config/log.config';
-import initDB from './config/database.config';
+import logger from './logger';
+import initDB from './database';
 
 /**
  * This is a bootstrap function
  */
 async function bootstrap() {
   // Attach HTTP request info logger middleware in test mode
-  if (Environment.NODE_ENV === 'test') {
+  if (process.env.NODE_ENV === 'test') {
     app.use((req: express.Request, _res, next) => {
       logger.debug(`[${req.method}] ${req.hostname}${req.url}`);
 
@@ -28,7 +27,7 @@ async function bootstrap() {
   app.use(compress()); // Compress
 
   // Enable middleware/whatever only in Production
-  if (Environment.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production') {
     // For example: Enable sentry in production
     // app.use(Sentry.Handlers.requestHandler());
   }
@@ -36,7 +35,7 @@ async function bootstrap() {
   /**
    * Configure cors
    */
-  configCors(app);
+  app.use(cors());
 
   /**
    * Configure mongoose

@@ -1,13 +1,14 @@
+import { injectable, inject } from 'inversify';
 import { Request, Response } from 'express';
 import isEmail from 'validator/lib/isEmail';
 import isLength from 'validator/lib/isLength';
 import { BadRequestError, MissingFieldError } from '../errors/app.errors';
 import StaticStringKeys from '../constants';
-import { Controller, Get, Post } from '../decorators';
 import { UserGetDTO, UserCreateDTO, UserUpdatePasswordDTO, UserUpdateEmailDTO } from '../dto/user.dto';
-import User, { UserDocument } from '../models/user.model';
-import { getValidObjectId } from '../helpers';
-import Repository from '../repository';
+import { IUserService } from '../services/user.service';
+import { getValidObjectId } from '../utils/utils';
+import { IUserRepository } from '../repositories/user.repository';
+import { TYPES } from '../types';
 
 export enum USER_ROLE {
   ADMIN = 1,
@@ -15,51 +16,48 @@ export enum USER_ROLE {
   VISITOR = 3
 }
 
-@Controller('/users')
+@injectable()
 export default class UserController {
-  private repository: Repository<UserDocument>;
-  private pageSize: number;
-  private userBusinessModel: User;
+  @inject(TYPES.UserRepository) private userRepository: IUserRepository;
+  @inject(TYPES.UserService) private userService: IUserService;
 
-  constructor(repository: Repository<UserDocument>) {
-    this.repository = repository;
+  private pageSize: number;
+
+  constructor() {
     this.pageSize = 20;
-    this.userBusinessModel = new User(repository);
   }
 
-  @Get('/')
-  public async getAll(req: Request, res: Response) {
+  public async find(req: Request, res: Response): Promise<void> {
     const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : this.pageSize;
     const pageNumber = req.query.page ? parseInt(req.query.page) : 1;
 
-    const dto: UserGetDTO = {
+    const getUserDto: UserGetDTO = {
       pageNumber,
       pageSize,
       filter: req.query.filter,
       path: req.path
     };
 
-    const response = await this.userBusinessModel.getAllUsers(dto);
+    const response = await this.userService.getAllUsers(getUserDto);
     res.send(response);
   }
 
-  @Get('/:id')
-  public async get(req: Request, res: Response) {
+  public async get(req: Request, res: Response): Promise<void> {
     if (!req.params.id) {
       throw new MissingFieldError('id');
     }
 
-    const user = await this.repository.getById(getValidObjectId(req.params.id));
+    const user = await this.userRepository.get(getValidObjectId(req.params.id));
     res.send(user);
   }
 
   /**
    * Create user
+   *
    * @requires username An unique user name
    * @requires password A valid password
    * @requires email A valid email
    **/
-  @Post('/')
   public async create(req: Request, res: Response) {
 
     if (!req.body.email) {
@@ -82,13 +80,13 @@ export default class UserController {
       throw new BadRequestError(StaticStringKeys.INVALID_PASSWORD);
     }
 
-    const dto: UserCreateDTO = {
+    const createUserDto: UserCreateDTO = {
       email: req.body.email,
       username: req.body.username,
       password: req.body.password
     };
 
-    await this.userBusinessModel.createUser(dto);
+    await this.userService.createUser(createUserDto);
 
     res.sendStatus(201);
   }
@@ -109,12 +107,12 @@ export default class UserController {
       throw new BadRequestError(StaticStringKeys.INVALID_EMAIL);
     }
 
-    const dto: UserUpdateEmailDTO = {
+    const updateUserDto: UserUpdateEmailDTO = {
       id: getValidObjectId(req.params.id),
       newEmail: req.body.email,
     };
 
-    await this.userBusinessModel.updateEmail(dto);
+    await this.userService.updateEmail(updateUserDto);
 
     res.sendStatus(204);
   }
@@ -131,14 +129,21 @@ export default class UserController {
       throw new MissingFieldError('password');
     }
 
-    const dto: UserUpdatePasswordDTO = {
+    const updatePasswordDto: UserUpdatePasswordDTO = {
       id: getValidObjectId(req.params.id),
       password: req.body.password
     };
 
-    await this.userBusinessModel.updatePassword(dto);
+    await this.userService.updatePassword(updatePasswordDto);
 
     res.sendStatus(204);
+  }
+
+  public async update(_req: Request, _res: Response): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+  public async delete(_req: Request, _res: Response): Promise<void> {
+    throw new Error("Method not implemented.");
   }
 
 }
