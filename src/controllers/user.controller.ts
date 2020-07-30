@@ -21,19 +21,19 @@ export default class UserController {
   @inject(TYPES.UserRepository) private userRepository: IUserRepository;
   @inject(TYPES.UserService) private userService: IUserService;
 
-  private pageSize: number;
+  private limit: number;
 
   constructor() {
-    this.pageSize = 20;
+    this.limit = 20;
   }
 
   public async find(req: Request, res: Response): Promise<void> {
-    const pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : this.pageSize;
+    const limit = req.query.limit ? parseInt(req.query.limit) : this.limit;
     const pageNumber = req.query.page ? parseInt(req.query.page) : 1;
 
     const getUserDto: UserGetDTO = {
       pageNumber,
-      pageSize,
+      limit,
       filter: req.query.filter,
       path: req.path
     };

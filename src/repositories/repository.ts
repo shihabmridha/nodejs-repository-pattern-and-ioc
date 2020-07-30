@@ -22,21 +22,62 @@ export interface Sort {
 }
 
 /**
- * Base repository interface
+ * Base repository interface.
  */
 export interface IRepository<T> {
+  /**
+   * Receives an ID and fetch data from database by that ID.
+   *
+   * @param id Id of the document
+   * @param select Field to project properties. This is optional.
+   */
   get(id: ObjectID, select?: Select): Promise<T>;
-  getAll(limit: number, page: number, select?: Select, sort?: Sort): Promise<T[]>;
+
+  /**
+   * Get documents from collection.
+   *
+   * @param filter Filter query
+   * @param limit Documetn limit per page
+   * @param page Current page number
+   * @param [select] Fields to select
+   * @param [sort] Sort order
+   *
+   * @returns Array of documents
+   */
   find(filter: FilterQuery<T>, limit: number, page?: number, select?: Select, sort?: Sort): Promise<T[]>;
 
+  /**
+   * Insert one item in the collection.
+   *
+   * @param data Object that you want to store
+   */
   create(data: Partial<T>): Promise<T>;
   createMany(data: Partial<T[]>): Promise<T[]>;
 
-  update(data: Partial<T>): Promise<void>;
-  updateById(id: ObjectID, data: Partial<T>): Promise<void>;
+  update(filter: FilterQuery<T>, data: Partial<T>, multi: boolean): Promise<void>;
+  updateById(ids: ObjectID | ObjectID[], data: Partial<T>): Promise<void>;
 
-  remove(id: ObjectID): Promise<void>;
-  removeMany(ids: ObjectID[]): Promise<void>;
+  /**
+   * It finds all the matching documents by the given filter and removes them.
+   *
+   * @param filter FilterQuery
+   */
+  remove(filter: FilterQuery<T>, multi: boolean): Promise<void>;
+
+  /**
+   * Remove documents from database by given IDs. This method receives one or more
+   * IDs. Checks if the IDs are valid and proceed to delete.
+   *
+   * @param ids ObjectID | ObjectID[]
+   */
+  removeById(id: ObjectID | ObjectID[]): Promise<void>;
+
+  /**
+   * Get the collection instance of the repository.
+   *
+   * @returns MongoDB collection instance
+   */
+  getCollection(): Collection;
 }
 
 /**
@@ -49,17 +90,12 @@ export interface IRepository<T> {
 @injectable()
 export default class Repository<T> implements IRepository<T> {
 
-  protected readonly collection: Collection;
+  private readonly collection: Collection;
 
   constructor(@unmanaged() collection: string) {
     this.collection = db.getCollection(collection);
   }
 
-  /**
-   * Receives an ID and fetch data from database by that ID.
-   * @param id Id of the document
-   * @param select Field to project properties. This is optional.
-   */
   public async get(id: ObjectID, select: Select = {}): Promise<T> {
     const objectId = getValidObjectId(id);
 
@@ -70,28 +106,7 @@ export default class Repository<T> implements IRepository<T> {
     return doc;
   }
 
-  public async getAll(limit: number = 20, page: number = 1, select: Select = {}, sort?: Sort): Promise<T[]> {
-    const collection = this.collection;
-
-    const query = collection.find<T>({}, select);
-
-    if (sort) {
-      query.sort(sort);
-    }
-
-    if (page > 0) {
-      const skip = limit * (page - 1);
-      query.skip(skip);
-    }
-
-    query.limit(limit);
-
-    const docs = await query.toArray();
-
-    return docs;
-  }
-
-  public async find(filter: FilterQuery<Partial<T>>, limit: number = 10, page: number = 0, select?: Select, sort?: Sort): Promise<T[]> {
+  public async find(filter: FilterQuery<Partial<T>> = {}, limit: number = 10, page: number = 0, select?: Select, sort?: Sort): Promise<T[]> {
     const collection = this.collection;
     const query = collection.find<T>(filter, select);
 
@@ -126,39 +141,43 @@ export default class Repository<T> implements IRepository<T> {
     throw new Error("Method not implemented.");
   }
 
-  public async update(_data: Partial<T>): Promise<void> {
+  public async update(_filter: FilterQuery<T>, _data: Partial<T>, _multi: boolean): Promise<void> {
     throw new Error("Method not implemented.");
   }
 
-  public async remove(id: ObjectID): Promise<void> {
-    const objectId = getValidObjectId(id);
+  public async updateById(ids: ObjectID | ObjectID[], data: Partial<T>) {
+    let objectIds = [];
 
-    const collection = this.collection;
-    await collection.findOneAndDelete({ _id: objectId });
-  }
-
-  /**
-   * If array of id is provided then only remove those items.
-   * If noting is given then remove all items
-   *
-   * @param ids Array of ids to delete.
-   */
-  public async removeMany(ids?: ObjectID[]): Promise<void> {
-    const collection = this.collection;
-
-    if (Array.isArray(ids) && ids.length > 0) {
-      const objectIds = ids.map((id) => getValidObjectId(id));
-      await collection.deleteMany({ _id: { $in: objectIds } });
+    if (Array.isArray(ids)) {
+      objectIds = ids.map((id) => getValidObjectId(id));
+    } else {
+      objectIds = [getValidObjectId(ids as ObjectID)];
     }
 
-    await collection.deleteMany({});
+    const collection = this.collection;
+    await collection.update({ _id: { $in: objectIds } }, data);
   }
 
-  public async updateById(id: ObjectID, data: Partial<T>) {
-    const objectId = getValidObjectId(id);
+  public async remove(filter: FilterQuery<T>, multi: boolean): Promise<void> {
+    const collection = this.collection;
+    if (multi) {
+      await collection.deleteMany(filter);
+    } else {
+      await collection.deleteOne(filter);
+    }
+  }
+
+  public async removeById(ids: ObjectID | ObjectID[]): Promise<void> {
+    let objectIds = [];
+
+    if (Array.isArray(ids)) {
+      objectIds = ids.map((id) => getValidObjectId(id));
+    } else {
+      objectIds = [getValidObjectId(ids as ObjectID)];
+    }
 
     const collection = this.collection;
-    await collection.update({ _id: objectId }, data);
+    await collection.deleteMany({ _id: { $in: objectIds } });
   }
 
   public getCollection(): Collection {

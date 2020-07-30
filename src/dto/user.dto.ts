@@ -4,7 +4,7 @@ import { ObjectID, FilterQuery } from 'mongodb';
 export type UserQueryDTO = BaseDTO;
 
 export interface UserGetDTO extends BaseDTO {
-  pageSize: number;
+  limit: number;
   pageNumber: number;
   filter: FilterQuery<UserQueryDTO>;
   path: string;

@@ -3,7 +3,8 @@ import { ObjectID } from 'mongodb';
 import Repository, { IRepository } from './repository';
 
 /**
- * Document of user collection contains following fields.
+ * The schema definition. In other word,
+ * A Document of the user collection contains following fields.
  */
 export interface UserDocument {
   _id: ObjectID;
@@ -16,13 +17,18 @@ export interface UserDocument {
   createdAt?: Date;
 }
 
+/**
+ * Repository interface.
+ */
 export interface IUserRepository extends IRepository<UserDocument> {
   isUsernameExists(username: string): Promise<boolean>;
   isEmailExists(username: string): Promise<boolean>;
 }
 
 /**
- * User repository
+ * User repository. In the constructor we pass the collection name to the
+ * parent constructor.
+ *
  */
 @injectable()
 export default class UserRepository extends Repository<UserDocument> implements IUserRepository {

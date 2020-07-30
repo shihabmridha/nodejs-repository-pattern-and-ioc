@@ -62,15 +62,12 @@ export default class UserService implements IUserService {
     await this.userRepository.create(userData);
   }
 
-  public async getAllUsers(data: UserGetDTO): Promise<Pagination<UserDocument>> {
+  public async getAllUsers(getUserDto: UserGetDTO): Promise<Pagination<UserDocument>> {
     let documents: UserDocument[];
-    if (data.filter) {
-      documents = await this.userRepository.find(data, data.pageSize, data.pageNumber);
-    } else {
-      documents = await this.userRepository.getAll(data.pageSize, data.pageNumber);
-    }
+    const filter = getUserDto.filter || {};
+    documents = await this.userRepository.find(filter, getUserDto.limit, getUserDto.pageNumber);
 
-    return paginate(documents, data.pageSize, data.pageNumber, data.path);
+    return paginate(documents, getUserDto.limit, getUserDto.pageNumber, getUserDto.path);
   }
 
   public async updatePassword(data: UserUpdatePasswordDTO) {

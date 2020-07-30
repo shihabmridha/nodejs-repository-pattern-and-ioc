@@ -32,7 +32,7 @@ beforeAll(async () => {
 });
 
 async function clearDatabase() {
-  await userRepository.removeMany();
+  await userRepository.remove({}, true);
 }
 
 async function clearDatabaseIndices() {
