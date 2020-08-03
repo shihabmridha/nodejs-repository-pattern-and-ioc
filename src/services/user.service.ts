@@ -79,8 +79,8 @@ export default class UserService implements IUserService {
   public async updateEmail(data: UserUpdateEmailDTO) {
     const user = await this.userRepository.get(data.id);
 
-    if (data.email !== user.email) {
-      const normalizedEmail = this.normalizeEmail(data.email);
+    if (data.newEmail !== user.email) {
+      const normalizedEmail = this.normalizeEmail(data.newEmail);
       const isEmailAvailable = await this.isEmailAvailable(normalizedEmail);
 
       if (!isEmailAvailable) {

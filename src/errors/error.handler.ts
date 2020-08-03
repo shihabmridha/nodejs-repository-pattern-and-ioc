@@ -19,12 +19,10 @@ export default function (app: Application) {
     if (err instanceof ApplicationError) {
       if (err.message) {
         log.info(err.message);
-        res.status(err.code).send(err.message);
+        return res.status(err.code).send(err.message);
       } else {
-        res.sendStatus(err.code);
+        return res.sendStatus(err.code);
       }
-
-      return;
     }
 
     next(err);

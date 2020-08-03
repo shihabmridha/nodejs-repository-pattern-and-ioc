@@ -1,27 +1,25 @@
-import BaseDTO from './base.dto';
 import { ObjectID, FilterQuery } from 'mongodb';
+import { UserDocument } from '../repositories/user.repository';
 
-export type UserQueryDTO = BaseDTO;
-
-export interface UserGetDTO extends BaseDTO {
+export interface UserGetDTO {
   limit: number;
   pageNumber: number;
-  filter: FilterQuery<UserQueryDTO>;
+  filter: FilterQuery<Partial<UserDocument>>;
   path: string;
 }
 
-export interface UserCreateDTO extends BaseDTO {
+export interface UserCreateDTO {
   username: string;
   email: string;
   password: string;
 }
 
-export interface UserUpdatePasswordDTO extends BaseDTO {
+export interface UserUpdatePasswordDTO {
   id: ObjectID;
   password: string;
 }
 
-export interface UserUpdateEmailDTO extends BaseDTO {
+export interface UserUpdateEmailDTO {
   id: ObjectID;
   newEmail: string;
 }
