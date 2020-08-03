@@ -9,7 +9,7 @@ const app = express();
 /**
  * Setup listener port
  */
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   logger.info(`Running Node.js version ${process.version}`);
   logger.info(`App environment: ${process.env.NODE_ENV}`);
