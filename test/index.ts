@@ -20,8 +20,10 @@ beforeEach(async () => {
 
 beforeAll(async () => {
   try {
+    jest.setTimeout(10000);
+
     // Wait for Jest to run the app and connect to database
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     userRepository = new Repository<UserDocument>('users');
 
