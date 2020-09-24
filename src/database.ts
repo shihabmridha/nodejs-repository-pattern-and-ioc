@@ -34,6 +34,8 @@ class Database {
 
     const connectionString = this.getConnectionString();
 
+    logger.debug(`Database connection string: ${connectionString}`);
+
     const client = new MongoClient(connectionString, {
       poolSize: 50,
       connectTimeoutMS: TWO_MINUTES_IN_MS,
@@ -43,8 +45,6 @@ class Database {
     });
 
     this.dbClient = await client.connect();
-
-    logger.debug(`Database connection string: ${connectionString}`);
     logger.info(`Connected with database host`);
 
     this.databaseInstance = this.dbClient.db(this.dbName);
@@ -52,7 +52,7 @@ class Database {
 
   public async disconnect() {
     if (this.dbClient.isConnected()) {
-      logger.info(`Disconned from ${this.host}/${this.dbName}`);
+      logger.info(`Disconnected from ${this.host}/${this.dbName}`);
       await this.dbClient.close();
     }
   }
