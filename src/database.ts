@@ -82,10 +82,10 @@ class Database {
     }
 
     if (env !== 'localhost' && this.user && this.password) {
-      return `mongodb://${this.user}:${this.password}@${this.host}/${this.dbName}`;
+      return `mongodb+srv://${this.user}:${this.password}@${this.host}/${this.dbName}`;
     }
 
-    return `mongodb://${this.host}/${this.dbName}`;
+    return `mongodb+srv://${this.host}/${this.dbName}`;
   }
 
   public getDbHost() {
