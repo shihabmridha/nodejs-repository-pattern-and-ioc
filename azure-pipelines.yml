@@ -16,7 +16,7 @@ steps:
   - script: tsc -p .
     displayName: "Compiling typescript"
 
-  - script: NODE_ENV=test LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) jest --forceExit ./build/test/api
+  - script: NODE_ENV=$(NODE_ENV) LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) jest --forceExit ./build/test/
     displayName: "Running tests"
 
   - task: PublishTestResults@2
@@ -25,7 +25,7 @@ steps:
       testRunner: JUnit
       testResultsFiles: "**/test-report.xml"
 
-  - script: NODE_ENV=test LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) jest --coverage --forceExit ./build/test/api
+  - script: NODE_ENV=$(NODE_ENV) LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) jest --coverage --forceExit ./build/test/
     displayName: "Running test coverage"
     condition: succeededOrFailed()
 
