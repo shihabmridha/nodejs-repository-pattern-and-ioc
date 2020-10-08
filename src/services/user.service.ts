@@ -23,6 +23,14 @@ export interface IUserService {
   getAllUsers(data: UserGetDTO): Promise<Pagination<UserDocument>>;
   updateEmail(data: UserUpdateEmailDTO): Promise<void>;
   updatePassword(data: UserUpdatePasswordDTO): Promise<void>;
+  isValidPassword(userGivenPassword: string, storedPassword: string): Promise<boolean>;
+  normalizeEmail(email: string): string;
+  normalizeUsername(username: string): string;
+  isValidUsername(username: string): boolean;
+  isUsernameAvailable(username: string): Promise<boolean>;
+  isEmailAvailable(givenEmail: string): Promise<boolean>;
+  hashPassword(password: string): Promise<string>;
+  normalizeUser(user: UserDocument): NormalizedUserDocument;
 }
 
 /**
@@ -149,22 +157,6 @@ export default class UserService implements IUserService {
     normalizedUser.deletedAt = undefined;
 
     return normalizedUser;
-  }
-
-  public get(_id: ObjectId): Promise<{}> {
-    throw new Error("Method not implemented.");
-  }
-  public find(): Promise<[{}]> {
-    throw new Error("Method not implemented.");
-  }
-  public create(): Promise<{} | [{}]> {
-    throw new Error("Method not implemented.");
-  }
-  public update(): Promise<{} | [{}]> {
-    throw new Error("Method not implemented.");
-  }
-  public delete(): Promise<void> {
-    throw new Error("Method not implemented.");
   }
 
 }
