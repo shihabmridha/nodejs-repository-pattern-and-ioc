@@ -1,6 +1,5 @@
 import { injectable, inject } from "inversify";
 import * as bcrypt from 'bcrypt';
-import { ObjectId } from "mongodb";
 import paginate, { Pagination } from '../utils/pagination';
 import { UserGetDTO, UserCreateDTO, UserUpdatePasswordDTO, UserUpdateEmailDTO } from '../dto/user.dto';
 import { BadRequestError } from '../errors/app.errors';
