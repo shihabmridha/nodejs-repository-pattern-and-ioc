@@ -7,8 +7,8 @@
     "start": "node ./build/src/app.js",
     "dev": "nodemon ./build/src/app.js",
     "production": "NODE_ENV=production node ./build/src/app.js",
-    "test": "NODE_ENV=test LOG_LEVEL=debug jest --forceExit --silent ./build/test",
-    "coverage": "NODE_ENV=test LOG_LEVEL=debug jest --coverage --forceExit ./build/test/api",
+    "test": "LOG_LEVEL=debug jest --forceExit --silent ./build/test",
+    "coverage": "LOG_LEVEL=debug jest --coverage --forceExit ./build/test/api",
     "compile": "tsc -p .",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix"
@@ -49,6 +49,7 @@
     "faker": "4.1.0",
     "jest-junit-reporter": "^1.1.0",
     "supertest": "^4.0.2",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+    "jest": "^27.3.0"
   }
 }

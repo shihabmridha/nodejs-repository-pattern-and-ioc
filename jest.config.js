@@ -21,7 +21,7 @@ module.exports = {
   // collectCoverageFrom: undefined,
 
   // The directory where Jest should output its coverage files
-  coverageDirectory: "coverage",
+  coverageDirectory: 'coverage',
 
   // An array of regexp pattern strings used to skip coverage collection
   // coveragePathIgnorePatterns: [
@@ -30,7 +30,7 @@ module.exports = {
 
   // A list of reporter names that Jest uses when writing coverage reports
   coverageReporters: [
-    "cobertura"
+    'cobertura',
   ],
 
   // An object that configures minimum threshold enforcement for coverage results
@@ -126,7 +126,7 @@ module.exports = {
   // snapshotSerializers: [],
 
   // The test environment that will be used for testing
-  testEnvironment: "node",
+  testEnvironment: 'node',
 
   // Options that will be passed to the testEnvironment
   // testEnvironmentOptions: {},
@@ -149,7 +149,7 @@ module.exports = {
   // testRegex: [],
 
   // This option allows the use of a custom results processor
-  testResultsProcessor: "jest-junit-reporter",
+  testResultsProcessor: 'jest-junit-reporter',
 
   // This option allows use of a custom test runner
   // testRunner: "jasmine2",
@@ -179,4 +179,6 @@ module.exports = {
 
   // Whether to use watchman for file crawling
   // watchman: true,
+
+  testTimeout : 10000,
 };

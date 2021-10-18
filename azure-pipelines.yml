@@ -8,15 +8,13 @@ steps:
     displayName: "Install Node.js"
 
   - script: |
-      npm install -g typescript@3.7.5
-      npm install -g jest@26.0.1
       npm install
     displayName: "Installing dependencies"
 
   - script: tsc -p .
     displayName: "Compiling typescript"
 
-  - script: NODE_ENV=$(NODE_ENV) LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) jest --forceExit ./build/test/
+  - script: NODE_ENV=$(NODE_ENV) LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) ./node_modules/.bin/jest --forceExit ./build/test/
     displayName: "Running tests"
 
   - task: PublishTestResults@2
@@ -25,7 +23,7 @@ steps:
       testRunner: JUnit
       testResultsFiles: "**/test-report.xml"
 
-  - script: NODE_ENV=$(NODE_ENV) LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) jest --coverage --forceExit ./build/test/
+  - script: NODE_ENV=$(NODE_ENV) LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) ./node_modules/.bin/jest --coverage --forceExit ./build/test/
     displayName: "Running test coverage"
     condition: succeededOrFailed()
 

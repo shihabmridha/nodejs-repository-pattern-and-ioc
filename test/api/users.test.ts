@@ -10,7 +10,7 @@ describe('Users', () => {
     async function createUserRequest({ username, password, email }, error?: string, code?: number) {
       const body = { username, password, email };
       const res = await request(app).post('/users').send(body).expect(code);
-      assert.deepEqual(res.text, error);
+      assert.deepStrictEqual(res.text, error);
     }
 
     test('response 201 if success', async () => {
@@ -86,22 +86,22 @@ describe('Users', () => {
 
     test('response 200 with list of users when get all users', async () => {
       const res = await request(app).get('/users').expect(200);
-      assert.deepEqual(Array.isArray(res.body.data), true);
-      assert.deepEqual(res.body.data.length, 1);
+      assert.deepStrictEqual(Array.isArray(res.body.data), true);
+      assert.deepStrictEqual(res.body.data.length, 1);
     });
 
     test('response 200 with N number of users when get all users', async () => {
       await helper.createNUsers(5);
       const res = await request(app).get('/users?limit=3').expect(200);
-      assert.deepEqual(Array.isArray(res.body.data), true);
-      assert.deepEqual(res.body.data.length, 3);
+      assert.deepStrictEqual(Array.isArray(res.body.data), true);
+      assert.deepStrictEqual(res.body.data.length, 3);
     });
 
     test('response 200 with N number of users from 2nd page when get all users', async () => {
       await helper.createNUsers(5);
       const res = await request(app).get('/users?limit=3&page=2').expect(200);
-      assert.deepEqual(Array.isArray(res.body.data), true);
-      assert.deepEqual(res.body.data.length, 3);
+      assert.deepStrictEqual(Array.isArray(res.body.data), true);
+      assert.deepStrictEqual(res.body.data.length, 3);
     });
 
   });

@@ -7,7 +7,7 @@ const LOG_FILE_PATH = 'logs/error.log';
 const file = new transports.File({ filename: LOG_FILE_PATH, level: 'error' });
 const console = new transports.Console();
 
-const logFormat = printf(({ level, message, logLabel, logTimestamp }) => {
+const logFormat = printf(({ level, message, label: logLabel, timestamp: logTimestamp }) => {
   return `${logTimestamp} [${logLabel}] ${level}: ${message}`;
 });
 
