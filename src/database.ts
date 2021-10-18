@@ -9,11 +9,15 @@ import logger from './logger';
 
 class Database {
   private password: string;
+
   private user: string;
+
   private host: string;
+
   private dbName: string;
 
   private dbClient: MongoClient;
+
   private databaseInstance: Db;
 
   constructor() {
@@ -41,11 +45,11 @@ class Database {
       connectTimeoutMS: TWO_MINUTES_IN_MS,
       socketTimeoutMS: ONE_DAY_IN_MS,
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
     });
 
     this.dbClient = await client.connect();
-    logger.info(`Connected with database host`);
+    logger.info('Connected with database host');
 
     this.databaseInstance = this.dbClient.db(this.dbName);
   }

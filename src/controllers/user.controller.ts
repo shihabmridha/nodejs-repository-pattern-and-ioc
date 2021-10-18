@@ -1,24 +1,26 @@
 import { injectable, inject } from 'inversify';
-import { Request, Response } from 'express';
+import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import isEmail from 'validator/lib/isEmail';
 import isLength from 'validator/lib/isLength';
 import { BadRequestError, MissingFieldError } from '../errors/app.errors';
 import StaticStringKeys from '../constants';
-import { UserGetDTO, UserCreateDTO, UserUpdatePasswordDTO, UserUpdateEmailDTO } from '../dto/user.dto';
+import { UserGetDTO as UserGetDto, UserCreateDTO, UserUpdatePasswordDTO, UserUpdateEmailDTO } from '../dto/user.dto';
 import { IUserService } from '../services/user.service';
 import { getValidObjectId } from '../utils/utils';
-import { IUserRepository } from '../repositories/user.repository';
+import { IUserRepository, UserDocument } from '../repositories/user.repository';
 import { TYPES } from '../types';
+import { FilterQuery } from 'mongodb';
 
-export enum USER_ROLE {
+export enum UserRoles {
   ADMIN = 1,
   MODERATOR = 2,
-  VISITOR = 3
+  VISITOR = 3,
 }
 
 @injectable()
 export default class UserController {
   @inject(TYPES.UserRepository) private userRepository: IUserRepository;
+
   @inject(TYPES.UserService) private userService: IUserService;
 
   private limit: number;
@@ -27,22 +29,22 @@ export default class UserController {
     this.limit = 20;
   }
 
-  public async find(req: Request, res: Response): Promise<void> {
-    const limit = req.query.limit ? parseInt(req.query.limit) : this.limit;
-    const pageNumber = req.query.page ? parseInt(req.query.page) : 1;
+  public async find(req: ExpressRequest, res: ExpressResponse): Promise<void> {
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : this.limit;
+    const pageNumber = req.query.page ? parseInt(req.query.page as string) : 1;
 
-    const getUserDto: UserGetDTO = {
+    const getUserDto: UserGetDto = {
       pageNumber,
       limit,
-      filter: req.query.filter,
-      path: req.path
+      filter: req.query.filter as FilterQuery<Partial<UserDocument>>,
+      path: req.path,
     };
 
     const response = await this.userService.getAllUsers(getUserDto);
     res.send(response);
   }
 
-  public async get(req: Request, res: Response): Promise<void> {
+  public async get(req: ExpressRequest, res: ExpressResponse): Promise<void> {
     if (!req.params.id) {
       throw new MissingFieldError('id');
     }
@@ -58,7 +60,7 @@ export default class UserController {
    * @requires password A valid password
    * @requires email A valid email
    **/
-  public async create(req: Request, res: Response) {
+  public async create(req: ExpressRequest, res: ExpressResponse) {
 
     if (!req.body.email) {
       throw new MissingFieldError('email');
@@ -83,7 +85,7 @@ export default class UserController {
     const createUserDto: UserCreateDTO = {
       email: req.body.email,
       username: req.body.username,
-      password: req.body.password
+      password: req.body.password,
     };
 
     await this.userService.createUser(createUserDto);
@@ -94,7 +96,7 @@ export default class UserController {
   /**
    * Update email
    */
-  public async updateEmail(req: Request, res: Response) {
+  public async updateEmail(req: ExpressRequest, res: ExpressResponse) {
     if (!req.params.id) {
       throw new MissingFieldError('id');
     }
@@ -120,7 +122,7 @@ export default class UserController {
   /**
    * Update password
    */
-  public async updatePassword(req: Request, res: Response) {
+  public async updatePassword(req: ExpressRequest, res: ExpressResponse) {
     if (!req.params.id) {
       throw new MissingFieldError('id');
     }
@@ -131,7 +133,7 @@ export default class UserController {
 
     const updatePasswordDto: UserUpdatePasswordDTO = {
       id: getValidObjectId(req.params.id),
-      password: req.body.password
+      password: req.body.password,
     };
 
     await this.userService.updatePassword(updatePasswordDto);
@@ -139,11 +141,12 @@ export default class UserController {
     res.sendStatus(204);
   }
 
-  public async update(_req: Request, _res: Response): Promise<void> {
-    throw new Error("Method not implemented.");
+  public async update(_req: ExpressRequest, _res: ExpressResponse): Promise<void> {
+    throw new Error('Method not implemented.');
   }
-  public async delete(_req: Request, _res: Response): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  public async delete(_req: ExpressRequest, _res: ExpressResponse): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 
 }

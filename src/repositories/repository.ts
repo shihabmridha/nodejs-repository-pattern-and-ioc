@@ -138,11 +138,11 @@ export default class Repository<T> implements IRepository<T> {
   }
 
   public createMany(_data: Partial<T[]>): Promise<T[]> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   public async update(_filter: FilterQuery<T>, _data: Partial<T>, _multi: boolean): Promise<void> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   public async updateById(ids: ObjectID | ObjectID[], data: Partial<T>) {

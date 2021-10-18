@@ -80,26 +80,26 @@ describe('Users', () => {
     });
 
     test('response 400 if invalid id provided when get user by id', async () => {
-      const res = await request(app).get(`/users/invalidId`).expect(400);
+      const res = await request(app).get('/users/invalidId').expect(400);
       assert.equal(res.text, 'Invalid id');
     });
 
     test('response 200 with list of users when get all users', async () => {
-      const res = await request(app).get(`/users`).expect(200);
+      const res = await request(app).get('/users').expect(200);
       assert.deepEqual(Array.isArray(res.body.data), true);
       assert.deepEqual(res.body.data.length, 1);
     });
 
     test('response 200 with N number of users when get all users', async () => {
       await helper.createNUsers(5);
-      const res = await request(app).get(`/users?limit=3`).expect(200);
+      const res = await request(app).get('/users?limit=3').expect(200);
       assert.deepEqual(Array.isArray(res.body.data), true);
       assert.deepEqual(res.body.data.length, 3);
     });
 
     test('response 200 with N number of users from 2nd page when get all users', async () => {
       await helper.createNUsers(5);
-      const res = await request(app).get(`/users?limit=3&page=2`).expect(200);
+      const res = await request(app).get('/users?limit=3&page=2').expect(200);
       assert.deepEqual(Array.isArray(res.body.data), true);
       assert.deepEqual(res.body.data.length, 3);
     });

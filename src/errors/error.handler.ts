@@ -1,4 +1,4 @@
-import { Application, Request, Response, NextFunction } from 'express';
+import { Application, Request as ExpressRequest, Response as ExpressResponse, NextFunction } from 'express';
 import { NotFoundError, ApplicationError } from './app.errors';
 import { MongoError } from 'mongodb';
 import log from '../logger';
@@ -15,7 +15,7 @@ export default function (app: Application) {
   });
 
   // Request error handler
-  app.use((err: ApplicationError, _req: Request, res: Response, next: NextFunction) => {
+  app.use((err: ApplicationError, _req: ExpressRequest, res: ExpressResponse, next: NextFunction) => {
     if (err instanceof ApplicationError) {
       if (err.message) {
         log.info(err.message);
@@ -29,7 +29,7 @@ export default function (app: Application) {
   });
 
   // Log all errors
-  app.use(function (err: any, req: Request, res: Response, next: NextFunction) {
+  app.use(function (err: any, req: ExpressRequest, res: ExpressResponse, next: NextFunction) {
     const userString = 'unknown user';
 
     if (err instanceof MongoError) {
@@ -53,7 +53,7 @@ export default function (app: Application) {
   });
 
   // Optional fallthrough error handler
-  app.use(function onError(err: Error, _req: Request, res: Response, _next: NextFunction) {
+  app.use(function onError(err: Error, _req: ExpressRequest, res: ExpressResponse, _next: NextFunction) {
     res.statusCode = 500;
     res.end(err.message + '\n');
   });

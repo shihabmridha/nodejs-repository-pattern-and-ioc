@@ -10,6 +10,14 @@ if (process.env.NODE_ENV !== 'test') {
 
 let userRepository: Repository<UserDocument>;
 
+async function clearDatabase() {
+  await userRepository.remove({}, true);
+}
+
+async function clearDatabaseIndices() {
+  await userRepository.getCollection().dropIndexes();
+}
+
 beforeEach(async () => {
   try {
     await clearDatabase();
@@ -32,14 +40,6 @@ beforeAll(async () => {
     log.info(error.message);
   }
 });
-
-async function clearDatabase() {
-  await userRepository.remove({}, true);
-}
-
-async function clearDatabaseIndices() {
-  await userRepository.getCollection().dropIndexes();
-}
 
 export async function createUser(username?: string, email?: string, password = 'password') {
   username = username ?? faker.internet.userName();

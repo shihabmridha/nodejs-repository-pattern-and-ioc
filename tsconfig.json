@@ -27,6 +27,6 @@
         "allowUnreachableCode": false,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "types": ["reflect-metadata", "jest"],
+        "types": ["node", "reflect-metadata", "jest"],
     }
 }

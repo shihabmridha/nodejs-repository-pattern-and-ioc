@@ -11,7 +11,7 @@ enum StaticStringKeys {
   EMAIL_NOT_AVAILABLE = 'Try another email',
   UNKNOWN_ERROR_TRY_AGAIN = 'Unknown error occured. Please try again.',
 
-  REPOSITORY_ERROR_INVALID_ID = 'Invalid id'
+  REPOSITORY_ERROR_INVALID_ID = 'Invalid id',
 }
 
 export default StaticStringKeys;
