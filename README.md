@@ -1,5 +1,7 @@
 # Repository pattern & Dependency injection using TypeScript
 
+### !! Work in progress
+
 This starter kit tries to implement a NodeJS, ExpressJS and MongoDB powered web application using repository pattern and dependency injection. The main idea is independent of any framework or database. TypeScript is used instead of JavaScript for various reasons. Especially the support for interface, generic type support, and better IntelliSense.
 
 # Usage
