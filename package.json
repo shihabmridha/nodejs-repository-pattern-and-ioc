@@ -24,7 +24,7 @@
     "inversify": "5.0.1",
     "mongodb": "3.5.8",
     "reflect-metadata": "0.1.13",
-    "validator": "12.2.0",
+    "validator": "13.7.0",
     "winston": "3.2.1",
     "source-map-support": "0.5.16"
   },
