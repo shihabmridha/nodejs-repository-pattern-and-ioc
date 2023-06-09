@@ -1,4 +1,4 @@
-FROM node:12.14.0-slim
+FROM node:18.16.0-alpine
 # Set the working directory to /dist
 WORKDIR /dist
 # copy package.json into the container at /dist
@@ -9,7 +9,7 @@ RUN npm install -g typescript
 # Copy the current directory contents into the container at /dist
 COPY . /dist/
 
-#Compile typescript
+# Compile typescript
 RUN tsc -p .
 
 # Make port 3000 available to the world outside this container

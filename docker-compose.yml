@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  devcontainer:
+    image: node:18.16.0-alpine
+    volumes:
+      - ../..:/workspaces:cached
+    network_mode: service:db
+    command: sleep infinity
+
+  db:
+    image: mongo:6.0.6
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/var/lib/mongo/data
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+volumes:
+  mongo-data:
