@@ -3,7 +3,7 @@ services:
   devcontainer:
     image: node:18.16.0-alpine
     volumes:
-      - ../..:/workspaces:cached
+      - .:/workspaces:cached
     network_mode: service:db
     command: sleep infinity
 
