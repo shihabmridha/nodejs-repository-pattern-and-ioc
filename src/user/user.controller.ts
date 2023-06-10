@@ -1,12 +1,23 @@
 import { injectable, inject } from 'inversify';
-import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
+import {
+  Request as ExpressRequest,
+  Response as ExpressResponse,
+} from 'express';
 import isEmail from 'validator/lib/isEmail';
 import isLength from 'validator/lib/isLength';
-import { BadRequestError, MissingFieldError } from '../errors/app.errors';
+import {
+  BadRequestError,
+  MissingFieldError,
+} from '../common/errors/app.errors';
 import StaticStringKeys from '../constants';
-import { UserGetDTO as UserGetDto, UserCreateDTO, UserUpdatePasswordDTO, UserUpdateEmailDTO } from '../dto/user.dto';
+import {
+  UserGetDTO as UserGetDto,
+  UserCreateDTO,
+  UserUpdatePasswordDTO,
+  UserUpdateEmailDTO,
+} from '../dto/user.dto';
 import { IUserService } from '../services/user.service';
-import { getValidObjectId } from '../utils/utils';
+import { getValidObjectId } from '../common/utils/utils';
 import { IUserRepository, UserDocument } from '../repositories/user.repository';
 import { TYPES } from '../types';
 import { FilterQuery } from 'mongodb';
@@ -30,7 +41,9 @@ export default class UserController {
   }
 
   public async find(req: ExpressRequest, res: ExpressResponse): Promise<void> {
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : this.limit;
+    const limit = req.query.limit
+      ? parseInt(req.query.limit as string)
+      : this.limit;
     const pageNumber = req.query.page ? parseInt(req.query.page as string) : 1;
 
     const getUserDto: UserGetDto = {
@@ -61,7 +74,6 @@ export default class UserController {
    * @requires email A valid email
    **/
   public async create(req: ExpressRequest, res: ExpressResponse) {
-
     if (!req.body.email) {
       throw new MissingFieldError('email');
     }
@@ -141,12 +153,17 @@ export default class UserController {
     res.sendStatus(204);
   }
 
-  public async update(_req: ExpressRequest, _res: ExpressResponse): Promise<void> {
+  public async update(
+    _req: ExpressRequest,
+    _res: ExpressResponse,
+  ): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  public async delete(_req: ExpressRequest, _res: ExpressResponse): Promise<void> {
+  public async delete(
+    _req: ExpressRequest,
+    _res: ExpressResponse,
+  ): Promise<void> {
     throw new Error('Method not implemented.');
   }
-
 }

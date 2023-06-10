@@ -1,4 +1,4 @@
-import StaticStringKeys from '../constants';
+import StaticStringKeys from '../../constants';
 
 export class ApplicationError extends Error {
   public code = null;

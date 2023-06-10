@@ -1,8 +1,13 @@
 import { injectable, inject } from 'inversify';
 import * as bcrypt from 'bcrypt';
-import paginate, { Pagination } from '../utils/pagination';
-import { UserGetDTO, UserCreateDTO, UserUpdatePasswordDTO, UserUpdateEmailDTO } from '../dto/user.dto';
-import { BadRequestError } from '../errors/app.errors';
+import paginate, { Pagination } from '../common/utils/pagination';
+import {
+  UserGetDTO,
+  UserCreateDTO,
+  UserUpdatePasswordDTO,
+  UserUpdateEmailDTO,
+} from '../dto/user.dto';
+import { BadRequestError } from '../common/errors/app.errors';
 import StaticStringKeys from '../constants';
 import { UserDocument } from '../repositories/user.repository';
 import { IUserRepository } from '../repositories/user.repository';
@@ -12,7 +17,10 @@ import { TYPES } from '../types';
  * User without sensitive fields.
  * This is useful when returning data to client.
  */
-export type NormalizedUserDocument = Pick<UserDocument, '_id' | 'username' | 'email' | 'lastLoggedIn'>;
+export type NormalizedUserDocument = Pick<
+  UserDocument,
+  '_id' | 'username' | 'email' | 'lastLoggedIn'
+>;
 
 /**
  * Interface for UserService
@@ -22,7 +30,10 @@ export interface IUserService {
   getAllUsers(data: UserGetDTO): Promise<Pagination<UserDocument>>;
   updateEmail(data: UserUpdateEmailDTO): Promise<void>;
   updatePassword(data: UserUpdatePasswordDTO): Promise<void>;
-  isValidPassword(userGivenPassword: string, storedPassword: string): Promise<boolean>;
+  isValidPassword(
+    userGivenPassword: string,
+    storedPassword: string,
+  ): Promise<boolean>;
   normalizeEmail(email: string): string;
   normalizeUsername(username: string): string;
   isValidUsername(username: string): boolean;
@@ -44,9 +55,12 @@ export default class UserService implements IUserService {
     const normalizedEmail = this.normalizeEmail(data.email);
     const normalizedUsername = this.normalizeUsername(data.username);
 
-    const users = await this.userRepository.find({
-      $or: [{ username: normalizedUsername }, { email: normalizedEmail }],
-    }, 2);
+    const users = await this.userRepository.find(
+      {
+        $or: [{ username: normalizedUsername }, { email: normalizedEmail }],
+      },
+      2,
+    );
 
     users.forEach((user) => {
       if (user.email === normalizedEmail) {
@@ -69,12 +83,23 @@ export default class UserService implements IUserService {
     await this.userRepository.create(userData);
   }
 
-  public async getAllUsers(getUserDto: UserGetDTO): Promise<Pagination<UserDocument>> {
+  public async getAllUsers(
+    getUserDto: UserGetDTO,
+  ): Promise<Pagination<UserDocument>> {
     let documents: UserDocument[];
     const filter = getUserDto.filter || {};
-    documents = await this.userRepository.find(filter, getUserDto.limit, getUserDto.pageNumber);
+    documents = await this.userRepository.find(
+      filter,
+      getUserDto.limit,
+      getUserDto.pageNumber,
+    );
 
-    return paginate(documents, getUserDto.limit, getUserDto.pageNumber, getUserDto.path);
+    return paginate(
+      documents,
+      getUserDto.limit,
+      getUserDto.pageNumber,
+      getUserDto.path,
+    );
   }
 
   public async updatePassword(data: UserUpdatePasswordDTO) {
@@ -94,18 +119,27 @@ export default class UserService implements IUserService {
         throw new BadRequestError(StaticStringKeys.EMAIL_NOT_AVAILABLE);
       }
 
-      await this.userRepository.updateById(user._id, { email: normalizedEmail });
+      await this.userRepository.updateById(user._id, {
+        email: normalizedEmail,
+      });
     }
   }
 
-  public async isValidPassword(userGivenPassword: string, storedPassword: string): Promise<boolean> {
+  public async isValidPassword(
+    userGivenPassword: string,
+    storedPassword: string,
+  ): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-      bcrypt.compare(userGivenPassword, storedPassword, function (err, isMatch: boolean) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(isMatch);
-      });
+      bcrypt.compare(
+        userGivenPassword,
+        storedPassword,
+        function (err, isMatch: boolean) {
+          if (err) {
+            return reject(err);
+          }
+          resolve(isMatch);
+        },
+      );
     });
   }
 
@@ -114,7 +148,10 @@ export default class UserService implements IUserService {
   }
 
   public normalizeUsername(username: string): string {
-    return username.toLowerCase().replace(/ /g, '_').replace(/[^A-Za-z0-9_]/g, '');
+    return username
+      .toLowerCase()
+      .replace(/ /g, '_')
+      .replace(/[^A-Za-z0-9_]/g, '');
   }
 
   public isValidUsername(username: string): boolean {
@@ -157,5 +194,4 @@ export default class UserService implements IUserService {
 
     return normalizedUser;
   }
-
 }

@@ -41,7 +41,11 @@ beforeAll(async () => {
   }
 });
 
-export async function createUser(username?: string, email?: string, password = 'password') {
+export async function createUser(
+  username?: string,
+  email?: string,
+  password = 'password',
+) {
   username = username ?? faker.internet.userName();
   email = email ?? faker.internet.email();
   // password = 'password';

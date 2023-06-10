@@ -44,7 +44,13 @@ export interface IRepository<T> {
    *
    * @returns Array of documents
    */
-  find(filter: FilterQuery<T>, limit: number, page?: number, select?: Select, sort?: Sort): Promise<T[]>;
+  find(
+    filter: FilterQuery<T>,
+    limit: number,
+    page?: number,
+    select?: Select,
+    sort?: Sort,
+  ): Promise<T[]>;
 
   /**
    * Insert one item in the collection.
@@ -54,7 +60,11 @@ export interface IRepository<T> {
   create(data: Partial<T>): Promise<T>;
   createMany(data: Partial<T[]>): Promise<T[]>;
 
-  update(filter: FilterQuery<T>, data: Partial<T>, multi: boolean): Promise<void>;
+  update(
+    filter: FilterQuery<T>,
+    data: Partial<T>,
+    multi: boolean,
+  ): Promise<void>;
   updateById(ids: ObjectID | ObjectID[], data: Partial<T>): Promise<void>;
 
   /**
@@ -89,7 +99,6 @@ export interface IRepository<T> {
  */
 @injectable()
 export default class Repository<T> implements IRepository<T> {
-
   private readonly collection: Collection;
 
   constructor(@unmanaged() collection: string) {
@@ -106,7 +115,13 @@ export default class Repository<T> implements IRepository<T> {
     return doc;
   }
 
-  public async find(filter: FilterQuery<Partial<T>> = {}, limit: number = 10, page: number = 0, select?: Select, sort?: Sort): Promise<T[]> {
+  public async find(
+    filter: FilterQuery<Partial<T>> = {},
+    limit = 10,
+    page = 0,
+    select?: Select,
+    sort?: Sort,
+  ): Promise<T[]> {
     const collection = this.collection;
     const query = collection.find<T>(filter, select);
 
@@ -141,7 +156,11 @@ export default class Repository<T> implements IRepository<T> {
     throw new Error('Method not implemented.');
   }
 
-  public async update(_filter: FilterQuery<T>, _data: Partial<T>, _multi: boolean): Promise<void> {
+  public async update(
+    _filter: FilterQuery<T>,
+    _data: Partial<T>,
+    _multi: boolean,
+  ): Promise<void> {
     throw new Error('Method not implemented.');
   }
 

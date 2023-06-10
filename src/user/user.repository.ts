@@ -31,13 +31,16 @@ export interface IUserRepository extends IRepository<UserDocument> {
  *
  */
 @injectable()
-export default class UserRepository extends Repository<UserDocument> implements IUserRepository {
+export default class UserRepository
+  extends Repository<UserDocument>
+  implements IUserRepository
+{
   constructor() {
     super('users'); // Passing collection name
   }
 
   public async isUsernameExists(username: string): Promise<boolean> {
-    const user = await this.find({ username }, 1, 0, { _id : 1 });
+    const user = await this.find({ username }, 1, 0, { _id: 1 });
     if (user.length > 0) {
       return true;
     }
@@ -46,7 +49,7 @@ export default class UserRepository extends Repository<UserDocument> implements 
   }
 
   public async isEmailExists(email: string): Promise<boolean> {
-    const user = await this.find({ email }, 1, 0, { _id : 1 });
+    const user = await this.find({ email }, 1, 0, { _id: 1 });
     if (user.length > 0) {
       return true;
     }
