@@ -1,7 +1,7 @@
 import { injectable, unmanaged } from 'inversify';
-import { Collection, FilterQuery, ObjectID } from 'mongodb';
-import db from '../database';
-import { getValidObjectId } from '../utils/utils';
+import { Collection, Filter, ObjectId } from 'mongodb';
+import db from './database';
+import { getValidObjectId } from './common/utils/utils';
 
 /**
  * Fields you want to select. For mongodb it is a key-value pair.
@@ -31,7 +31,7 @@ export interface IRepository<T> {
    * @param id Id of the document
    * @param select Field to project properties. This is optional.
    */
-  get(id: ObjectID, select?: Select): Promise<T>;
+  get(id: ObjectId, select?: Select): Promise<T>;
 
   /**
    * Get documents from collection.
@@ -45,7 +45,7 @@ export interface IRepository<T> {
    * @returns Array of documents
    */
   find(
-    filter: FilterQuery<T>,
+    filter: Filter<Partial<T>>,
     limit: number,
     page?: number,
     select?: Select,
@@ -60,19 +60,15 @@ export interface IRepository<T> {
   create(data: Partial<T>): Promise<T>;
   createMany(data: Partial<T[]>): Promise<T[]>;
 
-  update(
-    filter: FilterQuery<T>,
-    data: Partial<T>,
-    multi: boolean,
-  ): Promise<void>;
-  updateById(ids: ObjectID | ObjectID[], data: Partial<T>): Promise<void>;
+  update(filter: Filter<T>, data: Partial<T>, multi: boolean): Promise<void>;
+  updateById(ids: ObjectId | ObjectId[], data: Partial<T>): Promise<void>;
 
   /**
    * It finds all the matching documents by the given filter and removes them.
    *
    * @param filter FilterQuery
    */
-  remove(filter: FilterQuery<T>, multi: boolean): Promise<void>;
+  remove(filter: Filter<T>, multi: boolean): Promise<void>;
 
   /**
    * Remove documents from database by given IDs. This method receives one or more
@@ -80,7 +76,7 @@ export interface IRepository<T> {
    *
    * @param ids ObjectID | ObjectID[]
    */
-  removeById(id: ObjectID | ObjectID[]): Promise<void>;
+  removeById(id: ObjectId | ObjectId[]): Promise<void>;
 
   /**
    * Get the collection instance of the repository.
@@ -105,7 +101,7 @@ export default class Repository<T> implements IRepository<T> {
     this.collection = db.getCollection(collection);
   }
 
-  public async get(id: ObjectID, select: Select = {}): Promise<T> {
+  public async get(id: ObjectId, select: Select = {}): Promise<T> {
     const objectId = getValidObjectId(id);
 
     const collection = this.collection;
@@ -116,7 +112,7 @@ export default class Repository<T> implements IRepository<T> {
   }
 
   public async find(
-    filter: FilterQuery<Partial<T>> = {},
+    filter: Filter<Partial<T>> = {},
     limit = 10,
     page = 0,
     select?: Select,
@@ -147,7 +143,7 @@ export default class Repository<T> implements IRepository<T> {
     }
 
     const collection = this.collection;
-    const doc = (await collection.insertOne(data)).ops[0] as T;
+    const doc = (await collection.insertOne(data)) as T;
 
     return doc;
   }
@@ -157,27 +153,27 @@ export default class Repository<T> implements IRepository<T> {
   }
 
   public async update(
-    _filter: FilterQuery<T>,
+    _filter: Filter<T>,
     _data: Partial<T>,
     _multi: boolean,
   ): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  public async updateById(ids: ObjectID | ObjectID[], data: Partial<T>) {
+  public async updateById(ids: ObjectId | ObjectId[], data: Partial<T>) {
     let objectIds = [];
 
     if (Array.isArray(ids)) {
       objectIds = ids.map((id) => getValidObjectId(id));
     } else {
-      objectIds = [getValidObjectId(ids as ObjectID)];
+      objectIds = [getValidObjectId(ids as ObjectId)];
     }
 
     const collection = this.collection;
-    await collection.update({ _id: { $in: objectIds } }, data);
+    await collection.updateOne({ _id: { $in: objectIds } }, data);
   }
 
-  public async remove(filter: FilterQuery<T>, multi: boolean): Promise<void> {
+  public async remove(filter: Filter<T>, multi: boolean): Promise<void> {
     const collection = this.collection;
     if (multi) {
       await collection.deleteMany(filter);
@@ -186,13 +182,13 @@ export default class Repository<T> implements IRepository<T> {
     }
   }
 
-  public async removeById(ids: ObjectID | ObjectID[]): Promise<void> {
+  public async removeById(ids: ObjectId | ObjectId[]): Promise<void> {
     let objectIds = [];
 
     if (Array.isArray(ids)) {
       objectIds = ids.map((id) => getValidObjectId(id));
     } else {
-      objectIds = [getValidObjectId(ids as ObjectID)];
+      objectIds = [getValidObjectId(ids as ObjectId)];
     }
 
     const collection = this.collection;
