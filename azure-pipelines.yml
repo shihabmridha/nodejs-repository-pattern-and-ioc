@@ -11,7 +11,7 @@ steps:
       npm install
     displayName: "Installing dependencies"
 
-  - script: npm run compile
+  - script: npm run build
     displayName: "Compiling typescript"
 
   - script: NODE_ENV=$(NODE_ENV) LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) ./node_modules/.bin/jest --forceExit ./build/test/
