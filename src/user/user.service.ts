@@ -2,16 +2,17 @@ import { injectable, inject } from 'inversify';
 import * as bcrypt from 'bcrypt';
 import paginate, { Pagination } from '../common/utils/pagination';
 import {
-  UserGetDTO,
-  UserCreateDTO,
-  UserUpdatePasswordDTO,
-  UserUpdateEmailDTO,
-} from '../dto/user.dto';
+  UserCreateDto,
+  UserUpdatePasswordDto,
+  UserUpdateEmailDto,
+  UserQueryDto,
+} from './user.dto';
 import { BadRequestError } from '../common/errors/app.errors';
-import StaticStringKeys from '../constants';
-import { UserDocument } from '../repositories/user.repository';
-import { IUserRepository } from '../repositories/user.repository';
+import Constants from '../common/constants';
+import { UserDocument } from './user.repository';
+import { IUserRepository } from './user.repository';
 import { TYPES } from '../types';
+import { IUserService } from './user.service.interface';
 
 /**
  * User without sensitive fields.
@@ -23,27 +24,6 @@ export type NormalizedUserDocument = Pick<
 >;
 
 /**
- * Interface for UserService
- */
-export interface IUserService {
-  createUser(data: UserCreateDTO): Promise<void>;
-  getAllUsers(data: UserGetDTO): Promise<Pagination<UserDocument>>;
-  updateEmail(data: UserUpdateEmailDTO): Promise<void>;
-  updatePassword(data: UserUpdatePasswordDTO): Promise<void>;
-  isValidPassword(
-    userGivenPassword: string,
-    storedPassword: string,
-  ): Promise<boolean>;
-  normalizeEmail(email: string): string;
-  normalizeUsername(username: string): string;
-  isValidUsername(username: string): boolean;
-  isUsernameAvailable(username: string): Promise<boolean>;
-  isEmailAvailable(givenEmail: string): Promise<boolean>;
-  hashPassword(password: string): Promise<string>;
-  normalizeUser(user: UserDocument): NormalizedUserDocument;
-}
-
-/**
  * The actual class that contains all the business logic related to users.
  * Controller sanitize/validate(basic) and sends data to this class methods.
  */
@@ -51,7 +31,7 @@ export interface IUserService {
 export default class UserService implements IUserService {
   @inject(TYPES.UserRepository) private userRepository: IUserRepository;
 
-  public async createUser(data: UserCreateDTO): Promise<void> {
+  public async createUser(data: UserCreateDto): Promise<void> {
     const normalizedEmail = this.normalizeEmail(data.email);
     const normalizedUsername = this.normalizeUsername(data.username);
 
@@ -64,17 +44,17 @@ export default class UserService implements IUserService {
 
     users.forEach((user) => {
       if (user.email === normalizedEmail) {
-        throw new BadRequestError(StaticStringKeys.EMAIL_NOT_AVAILABLE);
+        throw new BadRequestError(Constants.EMAIL_NOT_AVAILABLE);
       }
 
       if (user.username === normalizedUsername) {
-        throw new BadRequestError(StaticStringKeys.USERNAME_NOT_AVAILABLE);
+        throw new BadRequestError(Constants.USERNAME_NOT_AVAILABLE);
       }
     });
 
     const password = await this.hashPassword(data.password);
 
-    const userData: UserCreateDTO = {
+    const userData: UserCreateDto = {
       username: normalizedUsername,
       email: normalizedEmail,
       password,
@@ -84,7 +64,7 @@ export default class UserService implements IUserService {
   }
 
   public async getAllUsers(
-    getUserDto: UserGetDTO,
+    getUserDto: UserQueryDto,
   ): Promise<Pagination<UserDocument>> {
     let documents: UserDocument[];
     const filter = getUserDto.filter || {};
@@ -102,13 +82,13 @@ export default class UserService implements IUserService {
     );
   }
 
-  public async updatePassword(data: UserUpdatePasswordDTO) {
+  public async updatePassword(data: UserUpdatePasswordDto) {
     const newPassword = await this.hashPassword(data.password);
 
     await this.userRepository.updateById(data.id, { password: newPassword });
   }
 
-  public async updateEmail(data: UserUpdateEmailDTO) {
+  public async updateEmail(data: UserUpdateEmailDto) {
     const user = await this.userRepository.get(data.id);
 
     if (data.newEmail !== user.email) {
@@ -116,7 +96,7 @@ export default class UserService implements IUserService {
       const isEmailAvailable = await this.isEmailAvailable(normalizedEmail);
 
       if (!isEmailAvailable) {
-        throw new BadRequestError(StaticStringKeys.EMAIL_NOT_AVAILABLE);
+        throw new BadRequestError(Constants.EMAIL_NOT_AVAILABLE);
       }
 
       await this.userRepository.updateById(user._id, {

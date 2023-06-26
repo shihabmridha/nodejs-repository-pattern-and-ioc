@@ -1,12 +1,12 @@
-import { MongoClient, Db, Collection } from 'mongodb';
+import { MongoClient, Db, Collection, ServerApiVersion } from 'mongodb';
 import logger from './logger';
+import { ApplicationError } from './errors/app.errors';
 
 /**
  * All the methods and properties mentioned in the following class is
  * specific to MongoDB. You should make necessary changes to support
- * the database you want to use.
+ * the database/orm you want to use.
  */
-
 class Database {
   private password: string;
 
@@ -21,10 +21,26 @@ class Database {
   private databaseInstance: Db;
 
   constructor() {
-    this.password = process.env.DB_PWD || '';
-    this.user = process.env.DB_USER || '';
-    this.host = process.env.DB_HOST || 'localhost:27017';
-    this.dbName = process.env.DB_NAME || 'my-db';
+    this.password = process.env.DB_PWD;
+    this.user = process.env.DB_USER;
+    this.host = process.env.DB_HOST;
+    this.dbName = process.env.DB_NAME;
+
+    if (!this.password) {
+      throw new Error('Database password not found');
+    }
+
+    if (!this.user) {
+      throw new Error('Database user not found');
+    }
+
+    if (!this.host) {
+      throw new Error('Database host not found');
+    }
+
+    if (!this.dbName) {
+      throw new Error('Database name not found');
+    }
   }
 
   public async connect(): Promise<void> {
@@ -41,11 +57,14 @@ class Database {
     logger.debug(`Database connection string: ${connectionString}`);
 
     const client = new MongoClient(connectionString, {
-      poolSize: 50,
+      maxPoolSize: 50,
       connectTimeoutMS: TWO_MINUTES_IN_MS,
       socketTimeoutMS: ONE_DAY_IN_MS,
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      }
     });
 
     this.dbClient = await client.connect();
@@ -55,7 +74,7 @@ class Database {
   }
 
   public async disconnect() {
-    if (this.dbClient.isConnected()) {
+    if (this.dbClient) {
       logger.info(`Disconnected from ${this.host}/${this.dbName}`);
       await this.dbClient.close();
     }
@@ -80,16 +99,7 @@ class Database {
    * Customize as needed for your database.
    */
   private getConnectionString() {
-    const env = process.env.NODE_ENV;
-    if (env === 'test' && !process.env.DB_NAME) {
-      this.dbName += '_test';
-    }
-
-    if (env !== 'localhost' && this.user && this.password) {
-      return `mongodb+srv://${this.user}:${this.password}@${this.host}/${this.dbName}`;
-    }
-
-    return `mongodb+srv://${this.host}/${this.dbName}`;
+    return `mongodb://${this.user}:${this.password}@${this.host}/${this.dbName}`;
   }
 
   public getDbHost() {
@@ -109,7 +119,7 @@ class Database {
   }
 
   public isDbConnected() {
-    return this.dbClient && this.dbClient.isConnected();
+    return Boolean(this.dbClient);
   }
 }
 

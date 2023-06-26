@@ -1,4 +1,4 @@
-import db from '../../src/database';
+import db from '../../src/common/database';
 
 describe('Database', () => {
   test('Test connection', async () => {

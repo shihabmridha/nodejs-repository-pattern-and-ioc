@@ -5,10 +5,11 @@ import * as express from 'express';
 import * as compress from 'compression';
 import app from './server';
 import * as cors from 'cors';
-import routes from './routes';
 import errorHandler from './common/errors/error.handler';
-import logger from './logger';
-import initDB from './database';
+import logger from './common/logger';
+import initDB from './common/database';
+import container from './inversify';
+import ApplicationRouter from './router';
 
 /**
  * This is a bootstrap function
@@ -23,8 +24,8 @@ async function bootstrap() {
     });
   }
 
-  app.disable('x-powered-by'); // Hide information
-  app.use(compress()); // Compress
+  app.disable('x-powered-by');
+  app.use(compress());
 
   // Enable middleware/whatever only in Production
   if (process.env.NODE_ENV === 'production') {
@@ -38,7 +39,7 @@ async function bootstrap() {
   app.use(cors());
 
   /**
-   * Configure mongoose
+   * Configure database
    **/
   if (!initDB.isDbConnected()) {
     await initDB.connect();
@@ -58,7 +59,9 @@ async function bootstrap() {
   /**
    * Configure routes
    */
-  routes(app);
+  // Let inversify resolve the dependency
+  const router = container.get<ApplicationRouter>(ApplicationRouter);
+  router.register(app);
 
   /**
    * Configure error handler

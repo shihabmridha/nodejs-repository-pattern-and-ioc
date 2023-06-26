@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as request from 'supertest';
 import app from '../../src/app';
 import * as helper from '../index';
-import { UserDocument } from '../../src/repositories/user.repository';
+import { UserDocument } from '../../src/user/user.repository';
 
 describe('Users', () => {
   describe('Create user', () => {

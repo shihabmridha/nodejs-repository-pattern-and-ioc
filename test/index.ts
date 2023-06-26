@@ -1,7 +1,7 @@
 import * as faker from 'faker';
-import log from '../src/logger';
-import Repository from '../src/repositories/repository';
-import { UserDocument } from '../src/repositories/user.repository';
+import log from '../src/common/logger';
+import Repository from '../src/common/repository';
+import { UserDocument } from '../src/user/user.repository';
 
 if (process.env.NODE_ENV !== 'test') {
   log.error('Invalid environment for tests');

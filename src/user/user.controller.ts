@@ -9,18 +9,19 @@ import {
   BadRequestError,
   MissingFieldError,
 } from '../common/errors/app.errors';
-import StaticStringKeys from '../constants';
+import Constants from '../common/constants';
 import {
-  UserGetDTO as UserGetDto,
-  UserCreateDTO,
-  UserUpdatePasswordDTO,
-  UserUpdateEmailDTO,
-} from '../dto/user.dto';
-import { IUserService } from '../services/user.service';
+  UserQueryDto,
+  UserCreateDto,
+  UserUpdatePasswordDto,
+  UserUpdateEmailDto,
+} from './user.dto';
+
 import { getValidObjectId } from '../common/utils/utils';
-import { IUserRepository, UserDocument } from '../repositories/user.repository';
+import { IUserRepository, UserDocument } from './user.repository';
 import { TYPES } from '../types';
-import { FilterQuery } from 'mongodb';
+import IUserService from './user.service.interface';
+import { Filter } from 'mongodb';
 
 export enum UserRoles {
   ADMIN = 1,
@@ -46,10 +47,10 @@ export default class UserController {
       : this.limit;
     const pageNumber = req.query.page ? parseInt(req.query.page as string) : 1;
 
-    const getUserDto: UserGetDto = {
+    const getUserDto: UserQueryDto = {
       pageNumber,
       limit,
-      filter: req.query.filter as FilterQuery<Partial<UserDocument>>,
+      filter: req.query.filter as Filter<Partial<UserDocument>>,
       path: req.path,
     };
 
@@ -87,14 +88,14 @@ export default class UserController {
     }
 
     if (!isEmail(req.body.email)) {
-      throw new BadRequestError(StaticStringKeys.INVALID_EMAIL);
+      throw new BadRequestError(Constants.INVALID_EMAIL);
     }
 
     if (!isLength(req.body.password.trim(), { min: 4, max: 20 })) {
-      throw new BadRequestError(StaticStringKeys.INVALID_PASSWORD);
+      throw new BadRequestError(Constants.INVALID_PASSWORD);
     }
 
-    const createUserDto: UserCreateDTO = {
+    const createUserDto: UserCreateDto = {
       email: req.body.email,
       username: req.body.username,
       password: req.body.password,
@@ -118,10 +119,10 @@ export default class UserController {
     }
 
     if (!isEmail(req.body.email)) {
-      throw new BadRequestError(StaticStringKeys.INVALID_EMAIL);
+      throw new BadRequestError(Constants.INVALID_EMAIL);
     }
 
-    const updateUserDto: UserUpdateEmailDTO = {
+    const updateUserDto: UserUpdateEmailDto = {
       id: getValidObjectId(req.params.id),
       newEmail: req.body.email,
     };
@@ -143,7 +144,7 @@ export default class UserController {
       throw new MissingFieldError('password');
     }
 
-    const updatePasswordDto: UserUpdatePasswordDTO = {
+    const updatePasswordDto: UserUpdatePasswordDto = {
       id: getValidObjectId(req.params.id),
       password: req.body.password,
     };

@@ -1,4 +1,4 @@
-import StaticStringKeys from '../../constants';
+import Constants from '../constants';
 
 export class ApplicationError extends Error {
   public code = null;
@@ -48,23 +48,23 @@ export class InternalError extends ApplicationError {
 
 export class InvalidCredentialError extends BadRequestError {
   constructor(...args: any) {
-    super(StaticStringKeys.INVALID_CREDENTIAL, args);
+    super(Constants.INVALID_CREDENTIAL, args);
   }
 }
 
 export class InvalidTokenError extends BadRequestError {
   constructor(type: string, ...args: any) {
     if (type === 'ACCESS') {
-      super(StaticStringKeys.INVALID_ACCESS_TOKEN, args);
+      super(Constants.INVALID_ACCESS_TOKEN, args);
     } else {
-      super(StaticStringKeys.INVALID_REFRESH_TOKEN, args);
+      super(Constants.INVALID_REFRESH_TOKEN, args);
     }
   }
 }
 
 export class InvalidIdError extends BadRequestError {
   constructor(...args: any) {
-    super(StaticStringKeys.REPOSITORY_ERROR_INVALID_ID, args);
+    super(Constants.REPOSITORY_ERROR_INVALID_ID, args);
   }
 }
 

@@ -1,25 +1,25 @@
-import { ObjectID, FilterQuery } from 'mongodb';
-import { UserDocument } from '../repositories/user.repository';
+import { Filter, ObjectId } from 'mongodb';
+import { UserDocument } from './user.repository';
 
-export interface UserGetDTO {
+export interface UserQueryDto {
   limit: number;
   pageNumber: number;
-  filter: FilterQuery<Partial<UserDocument>>;
+  filter: Filter<Partial<UserDocument>>;
   path: string;
 }
 
-export interface UserCreateDTO {
+export interface UserCreateDto {
   username: string;
   email: string;
   password: string;
 }
 
-export interface UserUpdatePasswordDTO {
-  id: ObjectID;
+export interface UserUpdatePasswordDto {
+  id: ObjectId;
   password: string;
 }
 
-export interface UserUpdateEmailDTO {
-  id: ObjectID;
+export interface UserUpdateEmailDto {
+  id: ObjectId;
   newEmail: string;
 }

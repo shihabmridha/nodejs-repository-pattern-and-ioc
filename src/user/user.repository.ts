@@ -1,13 +1,13 @@
 import { injectable } from 'inversify';
-import { ObjectID } from 'mongodb';
-import Repository, { IRepository } from './repository';
+import { ObjectId } from 'mongodb';
+import Repository, { IRepository } from '../common/repository';
 
 /**
  * The schema definition. In other word,
  * A Document of the user collection contains following fields.
  */
 export interface UserDocument {
-  _id: ObjectID;
+  _id: ObjectId;
   username: string;
   email: string;
   lastLoggedIn?: Date;
@@ -25,18 +25,11 @@ export interface IUserRepository extends IRepository<UserDocument> {
   isEmailExists(username: string): Promise<boolean>;
 }
 
-/**
- * User repository. In the constructor we pass the collection name to the
- * parent constructor.
- *
- */
 @injectable()
-export default class UserRepository
-  extends Repository<UserDocument>
-  implements IUserRepository
-{
+export default class UserRepository extends Repository<UserDocument> implements IUserRepository {
   constructor() {
-    super('users'); // Passing collection name
+    // MongoDB collection name
+    super('users');
   }
 
   public async isUsernameExists(username: string): Promise<boolean> {

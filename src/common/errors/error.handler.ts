@@ -6,13 +6,9 @@ import {
 } from 'express';
 import { NotFoundError, ApplicationError } from './app.errors';
 import { MongoError } from 'mongodb';
-import log from '../../logger';
+import log from '../logger';
 
 export default function (app: Application) {
-  /**
-   * Handle errors
-   */
-
   // If you are lost
   app.use(() => {
     throw new NotFoundError('You are lost');
