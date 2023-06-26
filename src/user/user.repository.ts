@@ -10,10 +10,8 @@ export interface UserDocument {
   _id: ObjectId;
   username: string;
   email: string;
-  lastLoggedIn?: Date;
   password: string;
-  role?: number;
-  deletedAt?: Date;
+  updatedAt?: Date;
   createdAt?: Date;
 }
 
@@ -26,7 +24,10 @@ export interface IUserRepository extends IRepository<UserDocument> {
 }
 
 @injectable()
-export default class UserRepository extends Repository<UserDocument> implements IUserRepository {
+export default class UserRepository
+  extends Repository<UserDocument>
+  implements IUserRepository
+{
   constructor() {
     // MongoDB collection name
     super('users');

@@ -94,7 +94,7 @@ export interface IRepository<T> {
  * The collection property is the mongoose collection in this case. For you, it can be mongodb collection for example.
  */
 @injectable()
-export default class Repository<T> implements IRepository<T> {
+export default abstract class Repository<T> implements IRepository<T> {
   private readonly collection: Collection;
 
   constructor(@unmanaged() collection: string) {

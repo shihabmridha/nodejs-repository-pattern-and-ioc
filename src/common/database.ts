@@ -1,6 +1,5 @@
 import { MongoClient, Db, Collection, ServerApiVersion } from 'mongodb';
 import logger from './logger';
-import { ApplicationError } from './errors/app.errors';
 
 /**
  * All the methods and properties mentioned in the following class is
@@ -25,6 +24,13 @@ class Database {
     this.user = process.env.DB_USER;
     this.host = process.env.DB_HOST;
     this.dbName = process.env.DB_NAME;
+  }
+
+  public async connect(): Promise<void> {
+    if (this.dbClient) {
+      logger.debug('Connection already exists');
+      return;
+    }
 
     if (!this.password) {
       throw new Error('Database password not found');
@@ -40,13 +46,6 @@ class Database {
 
     if (!this.dbName) {
       throw new Error('Database name not found');
-    }
-  }
-
-  public async connect(): Promise<void> {
-    if (this.dbClient) {
-      logger.debug('Connection already exists');
-      return;
     }
 
     const TWO_MINUTES_IN_MS = 2 * 60 * 1000;
@@ -64,7 +63,7 @@ class Database {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
-      }
+      },
     });
 
     this.dbClient = await client.connect();

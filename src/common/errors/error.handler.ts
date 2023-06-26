@@ -1,9 +1,4 @@
-import {
-  Application,
-  Request as ExpressRequest,
-  Response as ExpressResponse,
-  NextFunction,
-} from 'express';
+import { Application, Request, Response, NextFunction } from 'express';
 import { NotFoundError, ApplicationError } from './app.errors';
 import { MongoError } from 'mongodb';
 import log from '../logger';
@@ -18,8 +13,8 @@ export default function (app: Application) {
   app.use(
     (
       err: ApplicationError,
-      _req: ExpressRequest,
-      res: ExpressResponse,
+      _req: Request,
+      res: Response,
       next: NextFunction,
     ) => {
       if (err instanceof ApplicationError) {
@@ -37,9 +32,9 @@ export default function (app: Application) {
 
   // Log all errors
   app.use(function (
-    err: any,
-    req: ExpressRequest,
-    res: ExpressResponse,
+    err: Error,
+    req: Request,
+    res: Response,
     next: NextFunction,
   ) {
     const userString = 'unknown user';
@@ -74,8 +69,8 @@ export default function (app: Application) {
   // Optional fallthrough error handler
   app.use(function onError(
     err: Error,
-    _req: ExpressRequest,
-    res: ExpressResponse,
+    _req: Request,
+    res: Response,
     _next: NextFunction,
   ) {
     res.statusCode = 500;

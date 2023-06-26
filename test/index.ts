@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import log from '../src/common/logger';
 import Repository from '../src/common/repository';
-import { UserDocument } from '../src/user/user.repository';
+import UserRepository, { UserDocument } from '../src/user/user.repository';
 
 if (process.env.NODE_ENV !== 'test') {
   log.error('Invalid environment for tests');
@@ -33,7 +33,7 @@ beforeAll(async () => {
     // Wait for Jest to run the app and connect to database
     await new Promise((resolve) => setTimeout(resolve, 5000));
 
-    userRepository = new Repository<UserDocument>('users');
+    userRepository = new UserRepository();
 
     await clearDatabaseIndices();
   } catch (error) {
