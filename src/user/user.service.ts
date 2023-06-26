@@ -12,7 +12,7 @@ import Constants from '../common/constants';
 import { UserDocument } from './user.repository';
 import { IUserRepository } from './user.repository';
 import { TYPES } from '../types';
-import { IUserService } from './user.service.interface';
+import IUserService from './user.service.interface';
 
 /**
  * User without sensitive fields.
