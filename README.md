@@ -1,15 +1,16 @@
-# Repository pattern & Dependency injection using TypeScript
-
 ### !! Work in progress
+
+# Repository pattern & Dependency injection using TypeScript
 
 This starter kit tries to implement a NodeJS, ExpressJS and MongoDB powered web application using repository pattern and dependency injection. The main idea is independent of any framework or database. TypeScript is used instead of JavaScript for various reasons. Especially the support for interface, generic type support, and better IntelliSense.
 
 # Usage
-- Install TypeScript globally (`npm i -g typescript`)
 - Install required modules (`npm install`)
-- Compile typescript to javascript (`npm run compile`)
+- Compile typescript (`npm run build`)
 - Run (`npm start`)
 - Go to `http://localhost:3000`. You should see a static html page.
+
+Note: For development open two terminals. Run `npm run build:watch` in one terminal and run `npm run dev` in another one. This will allow you do hot-reload.
 
 # Core Features
 - Dependency injection
