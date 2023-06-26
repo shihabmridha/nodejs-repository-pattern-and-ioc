@@ -4,14 +4,14 @@ pool:
 steps:
   - task: NodeTool@0
     inputs:
-      versionSpec: "12.x"
+      versionSpec: "18.x"
     displayName: "Install Node.js"
 
   - script: |
       npm install
     displayName: "Installing dependencies"
 
-  - script: tsc -p .
+  - script: npm run compile
     displayName: "Compiling typescript"
 
   - script: NODE_ENV=$(NODE_ENV) LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) ./node_modules/.bin/jest --forceExit ./build/test/
