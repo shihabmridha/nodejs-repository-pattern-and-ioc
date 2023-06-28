@@ -7,5 +7,5 @@ module.exports = {
   coverageDirectory: 'coverage',
   coverageReporters: ['cobertura'],
   testResultsProcessor: 'jest-junit-reporter',
-  testTimeout: 100000,
+  testTimeout: 10000,
 };
