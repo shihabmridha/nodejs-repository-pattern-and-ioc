@@ -6,9 +6,9 @@ import * as compress from 'compression';
 import * as cors from 'cors';
 import app from './server';
 import errorHandler from './common/errors/error.handler';
-import logger from './common/logger';
-import initDB from './common/database';
-import container from './inversify';
+import logger from './core/logger';
+import initDB from './core/database';
+import container from './core/inversify';
 import ApplicationRouter from './router';
 
 /**

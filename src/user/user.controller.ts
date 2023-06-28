@@ -5,9 +5,10 @@ import { UserCreateDto } from './user.dto';
 import { getValidObjectId } from '../common/utils/utils';
 import TYPES from '../types';
 import IUserService from './user.service.interface';
+import BaseController from '../common/base.controller';
 
 @injectable()
-export default class UserController {
+export default class UserController extends BaseController {
   @inject(TYPES.UserService) private userService: IUserService;
 
   public async getAll(_req: Request, res: Response): Promise<void> {

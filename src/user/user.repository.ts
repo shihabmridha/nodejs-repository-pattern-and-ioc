@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { ObjectId } from 'mongodb';
-import Repository, { IRepository } from '../common/repository';
+import Repository, { IRepository } from '../core/repository';
 
 /**
  * The schema definition. In other word,

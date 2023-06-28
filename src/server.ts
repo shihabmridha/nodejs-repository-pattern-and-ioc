@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import logger from './common/logger';
+import logger from './core/logger';
 
 const app = express();
 

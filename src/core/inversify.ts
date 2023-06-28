@@ -1,10 +1,10 @@
 import { Container } from 'inversify';
-import TYPES from './types';
-import UserRepository, { IUserRepository } from './user/user.repository';
-import UserService from './user/user.service';
-import UserController from './user/user.controller';
-import IUserService from './user/user.service.interface';
-import ApplicationRouter from './router';
+import TYPES from '../types';
+import UserRepository, { IUserRepository } from '../user/user.repository';
+import UserService from '../user/user.service';
+import UserController from '../user/user.controller';
+import IUserService from '../user/user.service.interface';
+import ApplicationRouter from '../router';
 
 const container = new Container({ defaultScope: 'Singleton' });
 // Like other dependencies we do not resolve ApplicationRouter via `TYPES`.

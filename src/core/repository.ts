@@ -1,7 +1,7 @@
 import { injectable, unmanaged } from 'inversify';
 import { Collection, Filter, ObjectId } from 'mongodb';
 import db from './database';
-import { getValidObjectId } from './utils/utils';
+import { getValidObjectId } from '../common/utils/utils';
 
 /**
  * Fields you want to select. For mongodb it is a key-value pair.

@@ -1,6 +1,6 @@
 import * as faker from 'faker';
-import log from './logger';
-import Repository from './repository';
+import log from '../core/logger';
+import Repository from '../core/repository';
 import UserRepository, { UserDocument } from '../user/user.repository';
 
 if (process.env.NODE_ENV !== 'test') {
@@ -28,8 +28,6 @@ beforeEach(async () => {
 
 beforeAll(async () => {
   try {
-    jest.setTimeout(10000);
-
     // Wait for Jest to run the app and connect to database
     await new Promise((resolve) => setTimeout(resolve, 5000));
 
