@@ -1,14 +1,32 @@
 import * as faker from 'faker';
-import log from '../core/logger';
-import Repository from '../core/repository';
-import UserRepository, { UserDocument } from '../user/user.repository';
+import db from '../core/database';
+import UserRepository from '../user/user.repository';
+import logger from '../core/logger';
 
-if (process.env.NODE_ENV !== 'test') {
-  log.error('Invalid environment for tests');
-  process.exit(1);
+export function testPreparation() {
+  beforeEach(async () => {
+    try {
+      if (db.isConnected()) {
+        await clearDatabase();
+      }
+    } catch (error) {
+      logger.log('error', error.message);
+    }
+  });
+
+  beforeAll((done) => {
+    if (db.isConnected()) {
+      done();
+    } else {
+      db.on('connected', async () => {
+        await clearDatabaseIndices();
+        done();
+      });
+    }
+  });
 }
 
-let userRepository: Repository<UserDocument>;
+const userRepository = new UserRepository();
 
 async function clearDatabase() {
   await userRepository.remove({}, true);
@@ -17,27 +35,6 @@ async function clearDatabase() {
 async function clearDatabaseIndices() {
   await userRepository.getCollection().dropIndexes();
 }
-
-beforeEach(async () => {
-  try {
-    await clearDatabase();
-  } catch (error) {
-    log.info(error.message);
-  }
-});
-
-beforeAll(async () => {
-  try {
-    // Wait for Jest to run the app and connect to database
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-
-    userRepository = new UserRepository();
-
-    await clearDatabaseIndices();
-  } catch (error) {
-    log.info(error.message);
-  }
-});
 
 export async function createUser(
   username?: string,

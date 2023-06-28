@@ -1,4 +1,4 @@
-import Constants from '../constants';
+import Constants from './constants';
 
 export class ApplicationError extends Error {
   public code = null;

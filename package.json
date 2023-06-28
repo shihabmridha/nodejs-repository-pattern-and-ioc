@@ -9,7 +9,7 @@
     "start": "node ./src/app.ts",
     "start:dev": "nodemon ./src/app.ts",
     "start:prod": "node ./build/src/app.js",
-    "test": "jest --forceExit",
+    "test": "jest --runInBand --forceExit --no-cache",
     "test:cov": "jest --coverage --forceExit",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
   },
@@ -33,6 +33,7 @@
     "@types/cors": "2.8.6",
     "@types/dotenv": "8.2.0",
     "@types/express": "4.17.17",
+    "@types/faker": "^6.6.9",
     "@types/jest": "^25.2.3",
     "@types/mongodb": "3.5.20",
     "@types/node": "10.12.9",

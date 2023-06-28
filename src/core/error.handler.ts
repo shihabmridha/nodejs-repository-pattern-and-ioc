@@ -1,7 +1,7 @@
 import { Application, Request, Response, NextFunction } from 'express';
-import { NotFoundError, ApplicationError } from './app.errors';
+import { NotFoundError, ApplicationError } from '../common/app.errors';
 import { MongoError } from 'mongodb';
-import log from '../../core/logger';
+import log from './logger';
 
 export default function (app: Application) {
   // If you are lost
@@ -12,21 +12,21 @@ export default function (app: Application) {
   // Request error handler
   app.use(
     (
-      err: ApplicationError,
+      error: ApplicationError,
       _req: Request,
       res: Response,
       next: NextFunction,
     ) => {
-      if (err instanceof ApplicationError) {
-        if (err.message) {
-          log.info(err.message);
-          return res.status(err.code).send(err.message);
+      if (error instanceof ApplicationError) {
+        log.error(error?.message, error.stack);
+        if (error.message) {
+          return res.status(error.code).send(error.message);
         } else {
-          return res.sendStatus(err.code);
+          return res.sendStatus(error.code);
         }
       }
 
-      next(err);
+      next(error);
     },
   );
 
@@ -67,7 +67,7 @@ export default function (app: Application) {
   });
 
   // Optional fallthrough error handler
-  app.use(function onError(
+  app.use(function (
     err: Error,
     _req: Request,
     res: Response,

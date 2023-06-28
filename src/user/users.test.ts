@@ -1,7 +1,12 @@
-import * as request from 'supertest';
 import app from '../app';
-import * as helper from '../common/test.helper';
+import { testPreparation } from '../common/test.helper';
+import * as request from 'supertest';
+import { createUser } from '../common/test.helper';
 import { UserDocument } from './user.repository';
+
+const requestAgent = request(app);
+
+testPreparation();
 
 describe('Users', () => {
   describe('Create user', () => {
@@ -11,7 +16,7 @@ describe('Users', () => {
       code?: number,
     ) {
       const body = { username, password, email };
-      const res = await request(app).post('/users').send(body).expect(code);
+      const res = await requestAgent.post('/users').send(body).expect(code);
       expect(res.text).toBe(error);
     }
 
@@ -98,24 +103,24 @@ describe('Users', () => {
   describe('Get user', () => {
     let user: UserDocument;
     beforeEach(async () => {
-      user = await helper.createUser();
+      user = await createUser();
     });
 
     it('response 200 if successfully get user by id', async () => {
-      const res = await request(app).get(`/users/${user._id}`).expect(200);
+      const res = await requestAgent.get(`/users/${user._id}`).expect(200);
       expect(typeof res.body).toBe('object');
       expect(res.body.username).toBe(user.username);
       expect(res.body.email).toBe(user.email);
     });
 
     it('response 400 if invalid id provided when get user by id', async () => {
-      const res = await request(app).get('/users/invalidId').expect(400);
+      const res = await requestAgent.get('/users/invalidId').expect(400);
 
       expect(res.text).toBe('Invalid id');
     });
 
     it('response 200 with list of users when get all users', async () => {
-      const res = await request(app).get('/users').expect(200);
+      const res = await requestAgent.get('/users').expect(200);
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body.length).toBe(1);
     });

@@ -1,4 +1,5 @@
 import { MongoClient, Db, Collection, ServerApiVersion } from 'mongodb';
+import { EventEmitter } from 'events';
 import logger from './logger';
 
 /**
@@ -6,24 +7,26 @@ import logger from './logger';
  * specific to MongoDB. You should make necessary changes to support
  * the database/orm you want to use.
  */
-class Database {
+class Database extends EventEmitter {
   private password: string;
-
   private user: string;
-
   private host: string;
-
   private dbName: string;
-
   private dbClient: MongoClient;
-
   private databaseInstance: Db;
+  private mongoProtocol = 'mongodb';
 
   constructor() {
+    super();
+
     this.password = process.env.DB_PWD;
     this.user = process.env.DB_USER;
     this.host = process.env.DB_HOST;
     this.dbName = process.env.DB_NAME;
+
+    if (process.env.MONGO_PROTOCOL) {
+      this.mongoProtocol = process.env.MONGO_PROTOCOL;
+    }
   }
 
   public async connect(): Promise<void> {
@@ -98,26 +101,26 @@ class Database {
    * Customize as needed for your database.
    */
   private getConnectionString() {
-    return `mongodb://${this.user}:${this.password}@${this.host}/${this.dbName}`;
+    return `${this.mongoProtocol}://${this.user}:${this.password}@${this.host}/${this.dbName}`;
   }
 
-  public getDbHost() {
+  public getHost() {
     return this.host;
   }
 
-  public getDbPassword() {
+  public getPassword() {
     return this.password;
   }
 
-  public getDbUser() {
+  public getUser() {
     return this.user;
   }
 
-  public getDbName() {
+  public getName() {
     return this.dbName;
   }
 
-  public isDbConnected() {
+  public isConnected() {
     return Boolean(this.dbClient);
   }
 }

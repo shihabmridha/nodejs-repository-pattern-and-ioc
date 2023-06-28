@@ -97,16 +97,16 @@ export interface IRepository<T> {
  */
 @injectable()
 export default abstract class Repository<T> implements IRepository<T> {
-  private readonly collection: Collection;
+  private readonly collectionName: string;
 
   constructor(@unmanaged() collection: string) {
-    this.collection = db.getCollection(collection);
+    this.collectionName = collection;
   }
 
   public async get(id: ObjectId, select: Select = {}): Promise<T> {
     const objectId = getValidObjectId(id);
 
-    const collection = this.collection;
+    const collection = this.getCollection();
 
     const doc: T = await collection.findOne<T>({ _id: objectId }, select);
 
@@ -120,7 +120,7 @@ export default abstract class Repository<T> implements IRepository<T> {
     select?: Select,
     sort?: Sort,
   ): Promise<T[]> {
-    const collection = this.collection;
+    const collection = this.getCollection();
     const query = collection.find<T>(filter, select);
 
     if (sort) {
@@ -140,7 +140,7 @@ export default abstract class Repository<T> implements IRepository<T> {
   }
 
   public async findById(id: ObjectId, select?: Select): Promise<T> {
-    const doc = await this.collection.findOne<T>({ _id: id }, select);
+    const doc = await this.getCollection().findOne<T>({ _id: id }, select);
     return doc;
   }
 
@@ -149,7 +149,7 @@ export default abstract class Repository<T> implements IRepository<T> {
       throw new Error('Empty object provided');
     }
 
-    const collection = this.collection;
+    const collection = this.getCollection();
     const objectId = (await collection.insertOne(data)).insertedId;
 
     return objectId;
@@ -176,12 +176,12 @@ export default abstract class Repository<T> implements IRepository<T> {
       objectIds = [getValidObjectId(ids as ObjectId)];
     }
 
-    const collection = this.collection;
+    const collection = this.getCollection();
     await collection.updateOne({ _id: { $in: objectIds } }, data);
   }
 
   public async remove(filter: Filter<T>, multi: boolean): Promise<void> {
-    const collection = this.collection;
+    const collection = this.getCollection();
     if (multi) {
       await collection.deleteMany(filter);
     } else {
@@ -198,11 +198,11 @@ export default abstract class Repository<T> implements IRepository<T> {
       objectIds = [getValidObjectId(ids as ObjectId)];
     }
 
-    const collection = this.collection;
+    const collection = this.getCollection();
     await collection.deleteMany({ _id: { $in: objectIds } });
   }
 
   public getCollection(): Collection {
-    return this.collection;
+    return db.getCollection(this.collectionName);
   }
 }

@@ -1,9 +1,6 @@
 import { injectable, inject } from 'inversify';
 import * as bcrypt from 'bcrypt';
-import {
-  BadRequestError,
-  MissingFieldError,
-} from '../common/errors/app.errors';
+import { BadRequestError, MissingFieldError } from '../common/app.errors';
 import Constants from '../common/constants';
 import { UserDocument } from './user.repository';
 import { IUserRepository } from './user.repository';

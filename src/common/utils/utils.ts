@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { InvalidIdError } from '../errors/app.errors';
+import { InvalidIdError } from '../app.errors';
 
 export function getValidObjectId(id: string | ObjectId) {
   if (!ObjectId.isValid(id)) {
