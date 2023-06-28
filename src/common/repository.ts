@@ -52,12 +52,14 @@ export interface IRepository<T> {
     sort?: Sort,
   ): Promise<T[]>;
 
+  findById(id: ObjectId, select?: Select): Promise<T>;
+
   /**
    * Insert one item in the collection.
    *
    * @param data Object that you want to store
    */
-  create(data: Partial<T>): Promise<T>;
+  create(data: Partial<T>): Promise<ObjectId>;
   createMany(data: Partial<T[]>): Promise<T[]>;
 
   update(filter: Filter<T>, data: Partial<T>, multi: boolean): Promise<void>;
@@ -137,15 +139,20 @@ export default abstract class Repository<T> implements IRepository<T> {
     return docs;
   }
 
-  public async create(data: Partial<T>): Promise<T> {
+  public async findById(id: ObjectId, select?: Select): Promise<T> {
+    const doc = await this.collection.findOne<T>({ _id: id }, select);
+    return doc;
+  }
+
+  public async create(data: Partial<T>): Promise<ObjectId> {
     if (!data) {
       throw new Error('Empty object provided');
     }
 
     const collection = this.collection;
-    const doc = (await collection.insertOne(data)) as T;
+    const objectId = (await collection.insertOne(data)).insertedId;
 
-    return doc;
+    return objectId;
   }
 
   public createMany(_data: Partial<T[]>): Promise<T[]> {

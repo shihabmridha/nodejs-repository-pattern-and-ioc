@@ -2,10 +2,19 @@
     "compilerOptions": {
         "sourceMap": true,
         "outDir": "./build",
-        "lib": ["es6", "dom"],
-        "types": ["jest", "reflect-metadata"],
+        "lib": [
+            "es6",
+            "dom"
+        ],
+        "types": [
+            "jest",
+            "reflect-metadata"
+        ],
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "skipLibCheck": true
-    }
+    },
+    "include": [
+        "src/**/*"
+    ]
 }

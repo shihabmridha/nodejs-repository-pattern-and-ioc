@@ -1,7 +1,7 @@
 import * as faker from 'faker';
-import log from '../src/common/logger';
-import Repository from '../src/common/repository';
-import UserRepository, { UserDocument } from '../src/user/user.repository';
+import log from './logger';
+import Repository from './repository';
+import UserRepository, { UserDocument } from '../user/user.repository';
 
 if (process.env.NODE_ENV !== 'test') {
   log.error('Invalid environment for tests');
@@ -50,7 +50,8 @@ export async function createUser(
   email = email ?? faker.internet.email();
   // password = 'password';
 
-  const user = await userRepository.create({ username, email, password });
+  const docId = await userRepository.create({ username, email, password });
+  const user = await userRepository.findById(docId);
   return user;
 }
 
