@@ -1,33 +1,30 @@
 pool:
-  vmImage: "ubuntu-latest"
+  vmImage: 'ubuntu-latest'
 
 steps:
   - task: NodeTool@0
     inputs:
-      versionSpec: "18.x"
-    displayName: "Install Node.js"
+      versionSpec: '18.x'
+    displayName: 'Install Node.js'
 
   - script: |
       npm install
-    displayName: "Installing dependencies"
+    displayName: 'Installing dependencies'
 
-  - script: npm run build
-    displayName: "Compiling typescript"
-
-  - script: NODE_ENV=$(NODE_ENV) LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) ./node_modules/.bin/jest --forceExit ./build/test/
-    displayName: "Running tests"
+  - script: NODE_ENV=$(NODE_ENV) LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) ./node_modules/.bin/jest --forceExit
+    displayName: 'Running tests'
 
   - task: PublishTestResults@2
     condition: succeededOrFailed()
     inputs:
       testRunner: JUnit
-      testResultsFiles: "**/test-report.xml"
+      testResultsFiles: '**/test-report.xml'
 
-  - script: NODE_ENV=$(NODE_ENV) LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) ./node_modules/.bin/jest --coverage --forceExit ./build/test/
-    displayName: "Running test coverage"
+  - script: NODE_ENV=$(NODE_ENV) LOG_LEVEL=debug DB_PWD=$(DB_PASSWORD) DB_USER=$(DB_USERNAME) DB_HOST=$(DB_HOST) DB_NAME=$(DB_NAME) ./node_modules/.bin/jest --coverage --forceExit
+    displayName: 'Running test coverage'
     condition: succeededOrFailed()
 
   - task: PublishCodeCoverageResults@1
     inputs:
       codeCoverageTool: Cobertura
-      summaryFileLocation: "$(Build.SourcesDirectory)/**/*coverage.xml"
+      summaryFileLocation: '$(Build.SourcesDirectory)/**/*coverage.xml'
