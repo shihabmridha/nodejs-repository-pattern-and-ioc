@@ -13,69 +13,62 @@ import database from './core/database';
 import container from './core/inversify';
 import ApplicationRouter from './router';
 
+async function bootstrap(app: express.Application) {
+  app.disable('x-powered-by');
+  app.use(compress());
+
+  // Enable middleware/whatever only in Production
+  if (process.env.NODE_ENV === 'production') {
+    // For example: Enable sentry in production
+    // app.use(Sentry.Handlers.requestHandler());
+  }
+
+  /**
+   * Configure cors
+   */
+  app.use(cors());
+
+  /**
+   * Configure database
+   **/
+  database.connect();
+
+  /**
+   * Configure body parser
+   */
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+
+  /**
+   * Host static public directory
+   */
+  app.use('/', express.static('public'));
+
+  /**
+   * Configure routes
+   */
+  // Let inversify resolve the dependency
+  const router = container.get<ApplicationRouter>(ApplicationRouter);
+  router.register(app);
+
+  /**
+   * Configure error handler
+   */
+  errorHandler(app);
+
+  /**
+   * Setup listener port
+   */
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    logger.info(`Running Node.js version ${process.version}`);
+    logger.info(`App environment: ${process.env.NODE_ENV}`);
+    logger.info(`App is running on port ${PORT}`);
+  });
+}
+
 const app = express();
-
-app.disable('x-powered-by');
-app.use(compress());
-
-// Enable middleware/whatever only in Production
-if (process.env.NODE_ENV === 'production') {
-  // For example: Enable sentry in production
-  // app.use(Sentry.Handlers.requestHandler());
-}
-
-/**
- * Configure cors
- */
-app.use(cors());
-
-/**
- * Configure database
- **/
-if (!database.isConnected()) {
-  database
-    .connect()
-    .then(() => {
-      database.emit('connected');
-      logger.info('Database connected');
-    })
-    .catch((err) => {
-      logger.error('Database connection error', err);
-    });
-}
-
-/**
- * Configure body parser
- */
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-/**
- * Host static public directory
- */
-app.use('/', express.static('public'));
-
-/**
- * Configure routes
- */
-// Let inversify resolve the dependency
-const router = container.get<ApplicationRouter>(ApplicationRouter);
-router.register(app);
-
-/**
- * Configure error handler
- */
-errorHandler(app);
-
-/**
- * Setup listener port
- */
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  logger.info(`Running Node.js version ${process.version}`);
-  logger.info(`App environment: ${process.env.NODE_ENV}`);
-  logger.info(`App is running on port ${PORT}`);
-});
+bootstrap(app).catch((e) => console.error(e));
 
 // Need for integration testing
 export default app;

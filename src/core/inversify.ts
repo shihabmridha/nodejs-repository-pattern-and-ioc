@@ -1,6 +1,6 @@
 import { Container } from 'inversify';
 import TYPES from '../types';
-import UserRepository, { IUserRepository } from '../user/user.repository';
+import UserRepository from '../user/user.repository';
 import UserService from '../user/user.service';
 import UserController from '../user/user.controller';
 import IUserService from '../user/user.service.interface';
@@ -12,7 +12,7 @@ const container = new Container({ defaultScope: 'Singleton' });
 container.bind(ApplicationRouter).to(ApplicationRouter);
 
 container.bind<UserController>(TYPES.UserController).to(UserController);
-container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
+container.bind<UserRepository>(TYPES.UserRepository).to(UserRepository);
 container.bind<IUserService>(TYPES.UserService).to(UserService);
 
 export default container;

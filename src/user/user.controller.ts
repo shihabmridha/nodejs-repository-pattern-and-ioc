@@ -1,8 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { Request, Response } from 'express';
 import { UserCreateDto } from './user.dto';
-
-import { getValidObjectId } from '../common/utils/utils';
 import TYPES from '../types';
 import IUserService from './user.service.interface';
 import BaseController from '../common/base.controller';
@@ -17,7 +15,7 @@ export default class UserController extends BaseController {
   }
 
   public async get(req: Request, res: Response): Promise<void> {
-    const user = await this.userService.get(getValidObjectId(req.params.id));
+    const user = await this.userService.get(req.params.id);
     res.send(user);
   }
 

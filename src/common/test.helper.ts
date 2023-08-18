@@ -6,34 +6,30 @@ import logger from '../core/logger';
 export function testPreparation() {
   beforeEach(async () => {
     try {
-      if (db.isConnected()) {
-        await clearDatabase();
-      }
+      await clearDatabase();
     } catch (error) {
       logger.log('error', error.message);
     }
   });
 
   beforeAll((done) => {
-    if (db.isConnected()) {
-      done();
-    } else {
+    setTimeout(() => {
       db.on('connected', async () => {
         await clearDatabaseIndices();
         done();
       });
-    }
-  });
+    });
+  }, 10000);
 }
 
 const userRepository = new UserRepository();
 
 async function clearDatabase() {
-  await userRepository.remove({}, true);
+  await userRepository.removeMany({});
 }
 
 async function clearDatabaseIndices() {
-  await userRepository.getCollection().dropIndexes();
+  await userRepository.dropIndexes();
 }
 
 export async function createUser(
@@ -46,7 +42,7 @@ export async function createUser(
   // password = 'password';
 
   const docId = await userRepository.create({ username, email, password });
-  const user = await userRepository.findById(docId);
+  const user = await userRepository.findById(docId.toString());
   return user;
 }
 

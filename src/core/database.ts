@@ -19,10 +19,10 @@ class Database extends EventEmitter {
   constructor() {
     super();
 
-    this.password = process.env.DB_PWD;
-    this.user = process.env.DB_USER;
-    this.host = process.env.DB_HOST;
-    this.dbName = process.env.DB_NAME;
+    this.password = process.env.DATABASE_PASSWORD;
+    this.user = process.env.DATABASE_USER;
+    this.host = process.env.DATABASE_HOST;
+    this.dbName = process.env.DATABASE_NAME;
 
     if (process.env.MONGO_PROTOCOL) {
       this.mongoProtocol = process.env.MONGO_PROTOCOL;
@@ -69,10 +69,14 @@ class Database extends EventEmitter {
       },
     });
 
-    this.dbClient = await client.connect();
-    logger.info('Connected with database host');
-
-    this.databaseInstance = this.dbClient.db(this.dbName);
+    try {
+      this.dbClient = await client.connect();
+      logger.info('Connected with database host');
+      this.emit('connected');
+      this.databaseInstance = this.dbClient.db(this.dbName);
+    } catch (e) {
+      logger.error('Failed to connect to database', e.stack);
+    }
   }
 
   public async disconnect() {
@@ -89,11 +93,7 @@ class Database extends EventEmitter {
    * @param name MongoDB Collection name
    */
   public getCollection(name: string): Collection {
-    if (!this.databaseInstance) {
-      throw new Error('Database not initialized');
-    }
-
-    return this.databaseInstance.collection(name);
+    return this.databaseInstance?.collection(name);
   }
 
   /**
@@ -125,6 +125,4 @@ class Database extends EventEmitter {
   }
 }
 
-const db = new Database();
-
-export default db;
+export default new Database();
