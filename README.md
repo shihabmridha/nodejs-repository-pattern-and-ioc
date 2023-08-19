@@ -6,11 +6,11 @@ This starter kit tries to implement a NodeJS, ExpressJS and MongoDB powered web 
 
 # Usage
 
-- Install required modules (`npm install`)
-- Run (`npm start`)
+- Install required modules (`pnpm install`)
+- Run (`pnpm start`)
 - Go to `http://localhost:3000`. You should see a static html page.
 
-Note: Run `npm run start:dev` for hot-reload.
+Note: Run `pnpm run start:dev` for hot-reload.
 
 # Core Features
 
