@@ -13,7 +13,9 @@ import database from './core/database';
 import container from './core/inversify';
 import ApplicationRouter from './router';
 
-async function bootstrap(app: express.Application) {
+async function bootstrap() {
+  const app = express();
+
   app.disable('x-powered-by');
   app.use(compress());
 
@@ -67,8 +69,4 @@ async function bootstrap(app: express.Application) {
   });
 }
 
-const app = express();
-bootstrap(app).catch((e) => console.error(e));
-
-// Need for integration testing
-export default app;
+bootstrap().catch((e) => console.error(e));
