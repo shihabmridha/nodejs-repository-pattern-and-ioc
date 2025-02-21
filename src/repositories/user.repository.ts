@@ -1,6 +1,5 @@
-import { injectable } from 'inversify';
 import { ObjectId } from 'mongodb';
-import Repository from '../core/repository';
+import Repository from './repository';
 
 export interface UserDocument {
   _id: ObjectId;

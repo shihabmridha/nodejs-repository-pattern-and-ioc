@@ -1,6 +1,6 @@
 import { injectable, unmanaged } from 'inversify';
 import { Collection, Filter, FindOptions, ObjectId } from 'mongodb';
-import db from './database';
+import db from '../database';
 
 /**
  * This Repository class is the base repository. It is an abstract class because it can only be
@@ -14,7 +14,7 @@ export default abstract class Repository<T> {
   protected readonly collection: Collection;
 
   constructor(@unmanaged() collection: string) {
-    this.collection = db.getCollection(collection);
+    this.collection = db.getEntity(collection);
   }
 
   public async findOne(

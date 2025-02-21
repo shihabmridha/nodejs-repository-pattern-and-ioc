@@ -18,9 +18,9 @@ Note: Run `pnpm run start:dev` for hot-reload.
 - Repository pattern
 - CI (with code coverage) using Azure DevOps
 
-## Dependency injection using InversifyJS
+## Dependency injection using InversifyJS (Removed)
 
-[InversifyJS](http://inversify.io/) is a very useful library for dependency injection in JavaScript. It has first class support for TypeScript. It is not necessary to use interface to use dependency injection because Inversify can work with class. But, we should **"depend upon Abstractions and do not depend upon concretions"**. So we will use interfaces (abstractions). Everywhere in our application, we will only use (import) interfaces. In the `src/core/inversify.ts` file we will create a container, import necessary classes and do dependency bindings. InversifyJS requires a library named [reflect-metadata](https://www.npmjs.com/package/reflect-metadata).
+InversifyJS was making more abstraction than needed. I decided to remove it.
 
 ## Repository pattern
 

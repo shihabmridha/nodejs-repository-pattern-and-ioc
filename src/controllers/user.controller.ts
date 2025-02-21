@@ -1,9 +1,12 @@
-import { injectable, inject } from 'inversify';
 import { Request, Response } from 'express';
 import { UserCreateDto } from './user.dto';
 import TYPES from '../types';
 import IUserService from './user.service.interface';
-import BaseController from '../common/base.controller';
+import BaseController from '../controllers/base.controller';
+
+// export interface IUserController {
+//   getAll()
+// }
 
 @injectable()
 export default class UserController extends BaseController {

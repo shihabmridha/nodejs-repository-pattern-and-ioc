@@ -1,7 +1,7 @@
-import { testPreparation, clearDatabase } from '../common/test.helper';
+import { testPreparation, clearDatabase } from '../libs/test.helper';
 // import { UserDocument } from './user.repository';
 import IUserService from './user.service.interface';
-import container from '../core/inversify';
+import container from '../libs/inversify';
 import TYPES from '../types';
 
 describe('Users', () => {

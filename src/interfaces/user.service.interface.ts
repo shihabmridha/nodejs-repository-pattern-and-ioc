@@ -1,5 +1,5 @@
-import { UserCreateDto } from './user.dto';
-import { UserDocument } from './user.repository';
+import { UserCreateDto } from '../dtos/user.dto';
+import { UserDocument } from '../repositories/user.repository';
 
 export default interface IUserService {
   create(data: UserCreateDto): Promise<void>;

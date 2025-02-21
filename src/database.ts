@@ -1,13 +1,18 @@
 import { MongoClient, Db, Collection, ServerApiVersion } from 'mongodb';
 import { EventEmitter } from 'events';
-import logger from './logger';
+import logger from './libs/logger';
 
 /**
  * All the methods and properties mentioned in the following class is
  * specific to MongoDB. You should make necessary changes to support
  * the database/orm you want to use.
  */
-class Database extends EventEmitter {
+export interface IDatabase {
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+}
+
+export class Database extends EventEmitter implements IDatabase {
   private password: string;
   private user: string;
   private host: string;
@@ -88,11 +93,11 @@ class Database extends EventEmitter {
 
   /**
    * For MongoDB there is no table. It is called collection
-   * If you are using SQL database then this should be something like getTable()
+   * If you are using SQL database then this should probably receive table name
    *
    * @param name MongoDB Collection name
    */
-  public getCollection(name: string): Collection {
+  public getEntity(name: string): Collection {
     return this.databaseInstance?.collection(name);
   }
 
@@ -102,26 +107,6 @@ class Database extends EventEmitter {
    */
   private getConnectionString() {
     return `${this.mongoProtocol}://${this.user}:${this.password}@${this.host}/${this.dbName}`;
-  }
-
-  public getHost() {
-    return this.host;
-  }
-
-  public getPassword() {
-    return this.password;
-  }
-
-  public getUser() {
-    return this.user;
-  }
-
-  public getName() {
-    return this.dbName;
-  }
-
-  public isConnected() {
-    return Boolean(this.dbClient);
   }
 }
 

@@ -1,17 +1,14 @@
 {
     "compilerOptions": {
-        "sourceMap": true,
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
         "outDir": "./build",
         "lib": [
-            "es6",
-            "dom"
+            "ESNext"
         ],
-        "types": [
-            "jest",
-            "reflect-metadata"
-        ],
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
+        "strict": true,
+        "sourceMap": true,
         "skipLibCheck": true,
         "allowSyntheticDefaultImports": true
     },

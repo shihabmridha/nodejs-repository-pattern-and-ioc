@@ -7,10 +7,10 @@ dotenv.config();
 import * as express from 'express';
 import * as compress from 'compression';
 import * as cors from 'cors';
-import errorHandler from './core/error.handler';
-import logger from './core/logger';
-import database from './core/database';
-import container from './core/inversify';
+import errorHandler from './libs/error.handler';
+import logger from './libs/logger';
+import database from './database';
+import container from './libs/inversify';
 import ApplicationRouter from './router';
 
 async function bootstrap() {
@@ -33,7 +33,7 @@ async function bootstrap() {
   /**
    * Configure database
    **/
-  database.connect();
+  await database.connect();
 
   /**
    * Configure body parser
