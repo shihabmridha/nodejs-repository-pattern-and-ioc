@@ -1,41 +1,28 @@
-import { MongoClient, Db, Collection, ServerApiVersion } from 'mongodb';
+import { MongoClient, Db, ServerApiVersion } from 'mongodb';
 import { EventEmitter } from 'events';
 import logger from './libs/logger';
 import { Configuration } from './config';
-
-/**
- * All the methods and properties mentioned in the following class is
- * specific to MongoDB. You should make necessary changes to support
- * the database/orm you want to use.
- */
-export interface IDatabase {
-  connect(): Promise<void>;
-  disconnect(): Promise<void>;
-}
+import { IDatabase } from './interfaces/database';
 
 export class Database extends EventEmitter implements IDatabase {
-  private password: string;
-  private user: string;
-  private host: string;
-  private dbName: string;
+  private readonly password: string;
+  private readonly user: string;
+  private readonly host: string;
+  private readonly dbName: string;
   private dbClient: MongoClient;
   private databaseInstance: Db;
-  private mongoProtocol = 'mongodb';
+  private readonly mongoProtocol;
 
   constructor(config: Configuration) {
-    console.log('Database constructor');
     super();
 
     this.password = config.database.password;
     this.user = config.database.username;
     this.host = config.database.host;
     this.dbName = config.database.name;
+    this.mongoProtocol = config.database.mongoProtocol;
     this.databaseInstance = {} as Db;
     this.dbClient = {} as MongoClient;
-
-    if (process.env.MONGO_PROTOCOL) {
-      this.mongoProtocol = process.env.MONGO_PROTOCOL;
-    }
   }
 
   public async connect(): Promise<void> {
@@ -95,20 +82,10 @@ export class Database extends EventEmitter implements IDatabase {
     }
   }
 
-  /**
-   * For MongoDB there is no table. It is called collection
-   * If you are using SQL database then this should probably receive table name
-   *
-   * @param name MongoDB Collection name
-   */
-  public getEntity(name: string): Collection {
-    return this.databaseInstance?.collection(name);
+  public instance<T>(): T {
+    return this.databaseInstance as T;
   }
 
-  /**
-   * Build database connection string.
-   * Customize as needed for your database.
-   */
   private getConnectionString() {
     return `${this.mongoProtocol}://${this.user}:${this.password}@${this.host}/${this.dbName}`;
   }

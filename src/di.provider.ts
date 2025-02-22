@@ -1,11 +1,11 @@
-import {Configuration} from "./config";
-import { Database, IDatabase } from "./database";
+import { Configuration } from './config';
+import { Database } from './database';
+import { IDatabase } from './interfaces/database';
 
-class Dependencies {
+class Providers {
   public readonly configuration: Configuration;
   public readonly database: IDatabase;
   constructor() {
-    console.log("Dependencies constructor");
     const config = new Configuration();
 
     this.configuration = config;
@@ -13,4 +13,4 @@ class Dependencies {
   }
 }
 
-export const provider = new Dependencies();
+export const provider = new Providers();
