@@ -9,71 +9,51 @@ export default function (app: Application) {
     throw new NotFoundError('You are lost');
   });
 
-  // Request error handler
-  app.use(
-    (
-      error: ApplicationError,
-      _req: Request,
-      res: Response,
-      next: NextFunction,
-    ) => {
-      if (error instanceof ApplicationError) {
-        log.error(error?.message, error.stack);
-        if (error.message) {
-          return res.status(error.code).send(error.message);
-        } else {
-          return res.sendStatus(error.code);
-        }
-      }
-
-      next(error);
-    },
-  );
-
   // Log all errors
   app.use(function (
-    err: Error,
+    error: Error,
     req: Request,
     res: Response,
-    next: NextFunction,
+    _next: NextFunction,
   ) {
+    if (error instanceof ApplicationError) {
+      log.error(error?.message, error.stack);
+      if (error.message) {
+        res.status(error.code ?? 400).send(error.message);
+        return;
+      } else {
+        res.sendStatus(error.code ?? 500);
+        return;
+      }
+    }
+
     const userString = 'unknown user';
 
-    if (err instanceof MongoError) {
-      if (err.code === 11000) {
+    if (error instanceof MongoError) {
+      if (error.code === 11000) {
         log.error(
           `${req.method} ${req.path}: MongoDB duplicate entry from ${userString}`,
         );
       } else {
         log.error(
-          `${req.method} ${req.path}: Unhandled MongoDB error ${userString}. ${err.errmsg}`,
+          `${req.method} ${req.path}: Unhandled MongoDB error ${userString}. ${error.errmsg}`,
         );
       }
 
       if (!res.headersSent) {
-        return res.sendStatus(500);
+        res.sendStatus(500);
+        return;
       }
-    } else if (err instanceof Error) {
+    } else if (error instanceof Error) {
       log.error(
-        `${req.method} ${req.path}: Unhandled request error ${userString}. ${err.message}`,
+        `${req.method} ${req.path}: Unhandled request error ${userString}. ${error.message}`,
       );
-    } else if (typeof err === 'string') {
+    } else if (typeof error === 'string') {
       log.error(
-        `${req.method} ${req.path}: Unhandled request error ${userString}. ${err}`,
+        `${req.method} ${req.path}: Unhandled request error ${userString}. ${error}`,
       );
     }
 
-    next(err);
-  });
-
-  // Optional fallthrough error handler
-  app.use(function (
-    err: Error,
-    _req: Request,
-    res: Response,
-    _next: NextFunction,
-  ) {
-    res.statusCode = 500;
-    res.end(err.message + '\n');
+    res.status(500).send(error.message + '\n');
   });
 }

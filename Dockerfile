@@ -1,18 +1,23 @@
-FROM node:18.16.0-alpine
-# Set the working directory to /dist
-WORKDIR /dist
-# copy package.json into the container at /dist
-COPY package*.json /dist/
-# install dependencies
-RUN npm install
-RUN npm install -g typescript
-# Copy the current directory contents into the container at /dist
-COPY . /dist/
+FROM node:22.14.0-alpine AS base
 
-# Compile typescript
-RUN tsc -p .
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
-# Make port 3000 available to the world outside this container
+WORKDIR /app
+COPY . /app
+
+FROM base AS build
+
+COPY pnpm-lock.yaml /app
+RUN pnpm fetch
+RUN pnpm install --frozen-lockfile
+RUN pnpm run build
+
+FROM base
+COPY --from=build /app/node_modules /app/node_modules
+COPY --from=build /app/build /app/build
+
 EXPOSE 3000
-# Run the app when the container launches
-CMD ["npm", "start"]
+
+CMD ["pnpm", "start:prod"]

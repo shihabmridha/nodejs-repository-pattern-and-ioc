@@ -1,72 +1,85 @@
-// import { install as installSourceMapSupport } from 'source-map-support';
-// installSourceMapSupport();
-import 'reflect-metadata';
+import { install as installSourceMapSupport } from 'source-map-support';
 import * as dotenv from 'dotenv';
+installSourceMapSupport();
 dotenv.config();
 
-import * as express from 'express';
-import * as compress from 'compression';
-import * as cors from 'cors';
-import errorHandler from './libs/error.handler';
+import express from 'express';
+import compress from 'compression';
+import cors from 'cors';
 import logger from './libs/logger';
-import database from './database';
-import container from './libs/inversify';
-import ApplicationRouter from './router';
+import { provider } from './di.provider';
+// import errorHandler from './libs/error.handler';
+// import database from './database';
+// import ApplicationRouter from './router';
 
-async function bootstrap() {
+async function main() {
   const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.disable('x-powered-by');
+app.use(compress());
+app.use(cors());
+app.use('/', express.static('public'));
 
-  app.disable('x-powered-by');
-  app.use(compress());
+const config = provider.configuration;
 
-  // Enable middleware/whatever only in Production
-  if (process.env.NODE_ENV === 'production') {
-    // For example: Enable sentry in production
-    // app.use(Sentry.Handlers.requestHandler());
-  }
-
-  /**
-   * Configure cors
-   */
-  app.use(cors());
-
-  /**
-   * Configure database
-   **/
-  await database.connect();
-
-  /**
-   * Configure body parser
-   */
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-
-  /**
-   * Host static public directory
-   */
-  app.use('/', express.static('public'));
-
-  /**
-   * Configure routes
-   */
-  // Let inversify resolve the dependency
-  const router = container.get<ApplicationRouter>(ApplicationRouter);
-  router.register(app);
-
-  /**
-   * Configure error handler
-   */
-  errorHandler(app);
-
-  /**
-   * Setup listener port
-   */
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    logger.info(`Running Node.js version ${process.version}`);
-    logger.info(`App environment: ${process.env.NODE_ENV}`);
-    logger.info(`App is running on port ${PORT}`);
-  });
+if (config.env === 'production') {
+  // For example: Enable sentry in production
+  // app.use(Sentry.Handlers.requestHandler());
 }
 
-bootstrap().catch((e) => console.error(e));
+await provider.database.connect();
+
+// Start server
+const PORT = config.port || 3000;
+app.listen(PORT, () => {
+  logger.info(`Running Node.js version ${config.nodeVersion}`);
+  logger.info(`App environment: ${config.env}`);
+  logger.info(`App is running on port ${config.port}`);
+});
+}
+
+main().catch((e) => {
+  logger.error('Failed to start app', e);
+});
+
+// async function bootstrap() {
+//   const app = express();
+
+
+//   // Enable middleware/whatever only in Production
+
+//   /**
+//    * Configure cors
+//    */
+//   app.use(cors());
+
+//   /**
+//    * Configure database
+//    **/
+//   await database.connect();
+
+//   /**
+//    * Configure body parser
+//    */
+//   app.use(express.json());
+//   app.use(express.urlencoded({ extended: true }));
+
+//   /**
+//    * Host static public directory
+//    */
+//   app.use('/', express.static('public'));
+
+//   /**
+//    * Configure routes
+//    */
+//   // Let inversify resolve the dependency
+//   // router.register(app);
+
+//   /**
+//    * Configure error handler
+//    */
+//   errorHandler(app);
+
+
+// }

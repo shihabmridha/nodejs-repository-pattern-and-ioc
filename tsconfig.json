@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
         "target": "ESNext",
-        "module": "ESNext",
-        "moduleResolution": "Bundler",
+        "module": "node16",
+        "moduleResolution": "node16",
         "outDir": "./build",
         "lib": [
             "ESNext"
@@ -10,9 +10,11 @@
         "strict": true,
         "sourceMap": true,
         "skipLibCheck": true,
-        "allowSyntheticDefaultImports": true
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "tests"
     ]
 }

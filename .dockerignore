@@ -2,6 +2,10 @@ node_modules
 logs
 test
 build
+dist
 .env
 .vscode
 .nyc_output
+.git
+.gitignore
+*.md

@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import Repository from './repository';
+// import Repository from './repository';
 
 export interface UserDocument {
   _id: ObjectId;
@@ -10,28 +10,27 @@ export interface UserDocument {
   createdAt?: Date;
 }
 
-@injectable()
-export default class UserRepository extends Repository<UserDocument> {
-  constructor() {
-    // MongoDB collection name
-    super('users');
-  }
+// export default class UserRepository extends Repository<UserDocument> {
+//   constructor() {
+//     // MongoDB collection name
+//     super('users');
+//   }
 
-  public async isUsernameExists(username: string): Promise<boolean> {
-    const users = await this.find({ username }, { projection: { _id: 1 } });
-    if (users.length > 0) {
-      return true;
-    }
+//   public async isUsernameExists(username: string): Promise<boolean> {
+//     const users = await this.find({ username }, { projection: { _id: 1 } });
+//     if (users.length > 0) {
+//       return true;
+//     }
 
-    return false;
-  }
+//     return false;
+//   }
 
-  public async isEmailExists(email: string): Promise<boolean> {
-    const users = await this.find({ email }, { projection: { _id: 1 } });
-    if (users.length > 0) {
-      return true;
-    }
+//   public async isEmailExists(email: string): Promise<boolean> {
+//     const users = await this.find({ email }, { projection: { _id: 1 } });
+//     if (users.length > 0) {
+//       return true;
+//     }
 
-    return false;
-  }
-}
+//     return false;
+//   }
+// }

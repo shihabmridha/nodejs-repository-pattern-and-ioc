@@ -1,6 +1,7 @@
 import { MongoClient, Db, Collection, ServerApiVersion } from 'mongodb';
 import { EventEmitter } from 'events';
 import logger from './libs/logger';
+import { Configuration } from './config';
 
 /**
  * All the methods and properties mentioned in the following class is
@@ -21,13 +22,16 @@ export class Database extends EventEmitter implements IDatabase {
   private databaseInstance: Db;
   private mongoProtocol = 'mongodb';
 
-  constructor() {
+  constructor(config: Configuration) {
+    console.log('Database constructor');
     super();
 
-    this.password = process.env.DATABASE_PASSWORD;
-    this.user = process.env.DATABASE_USER;
-    this.host = process.env.DATABASE_HOST;
-    this.dbName = process.env.DATABASE_NAME;
+    this.password = config.database.password;
+    this.user = config.database.username;
+    this.host = config.database.host;
+    this.dbName = config.database.name;
+    this.databaseInstance = {} as Db;
+    this.dbClient = {} as MongoClient;
 
     if (process.env.MONGO_PROTOCOL) {
       this.mongoProtocol = process.env.MONGO_PROTOCOL;
@@ -79,7 +83,7 @@ export class Database extends EventEmitter implements IDatabase {
       logger.info('Connected with database host');
       this.emit('connected');
       this.databaseInstance = this.dbClient.db(this.dbName);
-    } catch (e) {
+    } catch (e: any) {
       logger.error('Failed to connect to database', e.stack);
     }
   }
@@ -109,5 +113,3 @@ export class Database extends EventEmitter implements IDatabase {
     return `${this.mongoProtocol}://${this.user}:${this.password}@${this.host}/${this.dbName}`;
   }
 }
-
-export default new Database();
