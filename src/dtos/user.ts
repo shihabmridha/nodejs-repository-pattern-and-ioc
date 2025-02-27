@@ -1,9 +1,15 @@
-import { IsAlphanumeric, IsEmail, IsStrongPassword } from 'class-validator';
+import {
+  IsAlpha,
+  IsEmail,
+  IsOptional,
+  IsStrongPassword,
+} from 'class-validator';
 import { BaseDto } from './base';
 
 export class UserDto extends BaseDto {
-  @IsAlphanumeric()
-  username: string = '';
+  @IsAlpha()
+  @IsOptional()
+  name: string = '';
 
   @IsEmail()
   email: string = '';
