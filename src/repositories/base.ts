@@ -3,10 +3,10 @@ import { IDatabase } from '../interfaces/database';
 
 export abstract class BaseRepository<TEntity> {
   protected readonly collection: Collection;
-
   constructor(db: IDatabase, collectionName: string) {
     this.collection = db.instance<Db>().collection(collectionName);
   }
+  protected abstract _getEntityName(): string;
 
   public async create(data: Partial<TEntity>): Promise<ObjectId> {
     const objectId = (await this.collection.insertOne(data)).insertedId;

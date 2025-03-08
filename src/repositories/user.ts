@@ -3,6 +3,10 @@ import { UserEntity } from '../entities/user';
 import { IDatabase } from '../interfaces/database';
 
 export class UserRepository extends BaseRepository<UserEntity> {
+  protected _getEntityName(): string {
+    throw new Error('Method not implemented.');
+  }
+
   constructor(db: IDatabase) {
     super(db, 'users'); // users = collection name
   }
